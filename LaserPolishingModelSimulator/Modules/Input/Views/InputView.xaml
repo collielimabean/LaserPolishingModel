@@ -8,6 +8,27 @@
              mc:Ignorable="d" d:DesignHeight="300" d:DesignWidth="500"
              prism:ViewModelLocator.AutoWireViewModel="True">
     <Grid>
-            
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <common:FilePicker Grid.Row="0" SelectedFile="{Binding ZygoFile}" 
+                           DefaultExt=".asc" Filters="Zygo ASCII File (*.asc)|*.asc"
+                           Enabled="True"/>
+
+        <Grid Grid.Row="5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="1" Background="Green" Foreground="White" Content="{DynamicResource Start}"/>
+        </Grid>
+        
     </Grid>
 </UserControl>

@@ -3,4 +3,6 @@
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
 
     <system:String x:Key="AppTitle">Laser Polishing Model Simulator</system:String>
+    <system:String x:Key="Browse">Browse</system:String>
+    <system:String x:Key="Start">Start</system:String>
 </ResourceDictionary>

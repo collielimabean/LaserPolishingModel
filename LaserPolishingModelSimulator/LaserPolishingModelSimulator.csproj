@@ -88,6 +88,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Common\FilePicker.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="i18n\Strings.en-US.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -101,6 +105,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Bootstrapper.cs" />
+    <Compile Include="Common\FilePicker.xaml.cs">
+      <DependentUpon>FilePicker.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Common\Regions.cs" />
     <Compile Include="Common\Util.cs" />
     <Compile Include="Events\InputEvents.cs" />
@@ -167,6 +174,11 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\LaserPolishingModel\LaserPolishingModel.csproj">
+      <Project>{0c1b2929-3ae3-486f-a7f0-e47e4a02bcb7}</Project>
+      <Name>LaserPolishingModel</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

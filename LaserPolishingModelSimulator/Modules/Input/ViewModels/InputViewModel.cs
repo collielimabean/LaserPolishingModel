@@ -9,5 +9,12 @@ namespace LaserPolishingModelSimulator.Modules.Input.ViewModels
 {
     class InputViewModel : BindableBase
     {
+        string zygoInputFile;
+
+        public string ZygoFile
+        {
+            get { return zygoInputFile; }
+            set { SetProperty(ref zygoInputFile, value); }
+        }
     }
 }

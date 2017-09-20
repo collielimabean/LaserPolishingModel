@@ -2,8 +2,8 @@
 {
     static class Regions
     {
-        internal static readonly string MENU_REGION = "Menu";
-        internal static readonly string INPUT_REGION = "Input";
-        internal static readonly string INPUT_DISPLAY_REGION = "InputDisplay";
+        public static readonly string MENU_REGION = "Menu";
+        public static readonly string INPUT_REGION = "Input";
+        public static readonly string INPUT_DISPLAY_REGION = "InputDisplay";
     }
 }
