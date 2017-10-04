@@ -39,14 +39,12 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Util\Coordinate.cs" />
-    <Compile Include="Zygote\Intensity.cs" />
-    <Compile Include="Zygote\Phase.cs" />
-    <Compile Include="Zygote\SystemInformation.cs" />
-    <Compile Include="Zygote\ZygoAsciiFile.cs" />
+    <Compile Include="Zygo\ZygoAsciiFile.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
