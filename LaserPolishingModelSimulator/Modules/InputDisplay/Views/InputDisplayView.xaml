@@ -4,10 +4,16 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:common="clr-namespace:LaserPolishingModelSimulator.Common"
+             xmlns:surfplot="clr-namespace:LaserPolishingModelSimulator.Common.SurfacePlot3D"
              xmlns:prism="http://prismlibrary.com/"
              mc:Ignorable="d" d:DesignHeight="300" d:DesignWidth="500"
              prism:ViewModelLocator.AutoWireViewModel="True">
     <Grid>
-            
+        <TabControl TabStripPlacement="Bottom">
+            <TabItem Header="{DynamicResource UnpolishedSurfacePlot}">
+                <surfplot:SurfacePlotView Title="{DynamicResource UnpolishedSurfacePlot}"
+                                          DataContext="{Binding UnpolishedSurface, UpdateSourceTrigger=PropertyChanged}"/>
+            </TabItem>
+        </TabControl>
     </Grid>
 </UserControl>

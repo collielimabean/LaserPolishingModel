@@ -21,6 +21,9 @@ namespace LaserPolishingModelSimulator.Common
     /// </summary>
     public partial class FilePicker : UserControl
     {
+        public static readonly DependencyProperty FilePickerLabelProperty =
+            DependencyProperty.Register("FilePickerLabel", typeof(string), typeof(FilePicker));
+
         public static readonly DependencyProperty FiltersProperty =
             DependencyProperty.Register("Filters", typeof(string), typeof(FilePicker));
 
@@ -37,6 +40,12 @@ namespace LaserPolishingModelSimulator.Common
         {
             InitializeComponent();
             root.DataContext = this;
+        }
+
+        public string FilePickerLabel
+        {
+            get { return GetValue(FilePickerLabelProperty) as string; }
+            set { SetValue(FilePickerLabelProperty, value); }
         }
 
         public string Filters

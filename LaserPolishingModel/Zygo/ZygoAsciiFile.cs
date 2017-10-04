@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace ZygoTest
+namespace LaserPolishingModel.Zygo
 {
     enum SoftwareType
     {
@@ -42,7 +42,7 @@ namespace ZygoTest
         Generated = 1
     }
 
-    class ZygoAsciiFile
+    public class ZygoAsciiFile
     {
         #region Constants
         // I sincerely apologize for this horrendous regular expression.
@@ -240,14 +240,15 @@ namespace ZygoTest
                 PhaseRes = (PhaseRes == 1) ? 32768 : 4096; // XXX: convert to constants
 
                 // read intensity data //
-                IntensityData = ParseIntegerArray(reader, IntensHeight, IntensWidth);
+                IntensityData = ParseIntegerArray(reader, IntensHeight, IntensWidth, 65535);
 
                 // read phase data //
-                PhaseData = ParseIntegerArray(reader, PhaseHeight, PhaseWidth, IntfScaleFactor * ObliquityFactor / PhaseRes);
+                // conver to wave unit //
+                PhaseData = ParseIntegerArray(reader, PhaseHeight, PhaseWidth, 2147483640, IntfScaleFactor * ObliquityFactor / PhaseRes);
             }
         }
 
-        double[,] ParseIntegerArray(StreamReader streamReader, int height, int width, double scale_factor = 1)
+        double[,] ParseIntegerArray(StreamReader streamReader, int height, int width, int invalid_threshold, double scale_factor = 1)
         {
             string line;
             int index = 0;
@@ -265,13 +266,17 @@ namespace ZygoTest
                     int val;
 
                     if (index >= totalNumberPoints)
-                        throw new FileFormatException("Too many intensity points!");
+                        throw new FileFormatException("Too many points!");
 
                     int row = index / width;
                     int col = index % width;
 
                     if (!int.TryParse(element, out val))
-                        throw new FileFormatException("Intensity point was not an integer!");
+                        throw new FileFormatException("Point was not an integer!");
+
+                    // XXX: FIX ME - either set NaN OR run >>> knnimpute <<<
+                    if (val >= invalid_threshold)
+                        val = -1;
 
                     data[row, col] = val * scale_factor;
                     index++;

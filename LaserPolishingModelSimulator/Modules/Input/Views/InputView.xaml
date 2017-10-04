@@ -2,32 +2,82 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
              xmlns:common="clr-namespace:LaserPolishingModelSimulator.Common"
              xmlns:prism="http://prismlibrary.com/"
              mc:Ignorable="d" d:DesignHeight="300" d:DesignWidth="500"
              prism:ViewModelLocator.AutoWireViewModel="True">
     <Grid>
+        <i:Interaction.Triggers>
+            <i:EventTrigger>
+                <i:InvokeCommandAction Command="{Binding InputViewLoaded}" />
+            </i:EventTrigger>
+        </i:Interaction.Triggers>
+        
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="6*"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <common:FilePicker Grid.Row="0" SelectedFile="{Binding ZygoFile}" 
+        <common:FilePicker Grid.Row="0" FilePickerLabel="{DynamicResource UnpolishedFilePickerLabel}"
+                           SelectedFile="{Binding UnpolishedSurfaceZygoFile, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                            DefaultExt=".asc" Filters="Zygo ASCII File (*.asc)|*.asc"
                            Enabled="True"/>
 
-        <Grid Grid.Row="5">
+        <TabControl Grid.Row="1" TabStripPlacement="Bottom">
+            <TabItem Header="{DynamicResource MaterialSettingTabTitle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="4*"/>
+                    </Grid.RowDefinitions>
+
+                    <DockPanel Grid.Row="0">
+                        <TextBlock DockPanel.Dock="Left" 
+                                   Text="{DynamicResource MaterialSettingTabTitle}" 
+                                   HorizontalAlignment="Center" 
+                                   VerticalAlignment="Center"/>
+                        
+                        <ComboBox DockPanel.Dock="Left" 
+                                  ItemsSource="{Binding Materials}" 
+                                  DisplayMemberPath="Name"
+                                  SelectedItem="{Binding SelectedMaterial}"/>
+                        
+                    </DockPanel>
+
+                    <DataGrid Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" ItemsSource="{Binding MaterialSettingRawList, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="{DynamicResource NameTabTitle}" Binding="{Binding Name}" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="{DynamicResource ValueTabTitle}" Binding="{Binding Value}"/>
+                            <DataGridTextColumn Header="{DynamicResource UnitTabTitle}" Binding="{Binding Unit}" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="{DynamicResource CommentTabTitle}" Binding="{Binding Comment}" IsReadOnly="True"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="{DynamicResource LaserSettingTabTitle}">
+                <DataGrid AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" ItemsSource="{Binding LaserSettingRawList}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="{DynamicResource NameTabTitle}" Binding="{Binding Name}" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="{DynamicResource ValueTabTitle}" Binding="{Binding Value}"/>
+                        <DataGridTextColumn Header="{DynamicResource UnitTabTitle}" Binding="{Binding Unit}" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="{DynamicResource CommentTabTitle}" Binding="{Binding Comment}" IsReadOnly="True"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+        </TabControl>        
+        
+        <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="2*"/>
             </Grid.ColumnDefinitions>
 
-            <Button Grid.Column="1" Background="Green" Foreground="White" Content="{DynamicResource Start}"/>
+            <Button Grid.Column="1" Background="Green" Foreground="White" Content="{DynamicResource Start}" Command="{Binding StartCommand}"/>
         </Grid>
         
     </Grid>
