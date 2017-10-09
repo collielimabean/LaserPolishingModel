@@ -16,15 +16,17 @@
         </i:Interaction.Triggers>
         
         <Grid.RowDefinitions>
-            <RowDefinition Height="2*"/>
+            <RowDefinition Height="*"/>
             <RowDefinition Height="6*"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <common:FilePicker Grid.Row="0" FilePickerLabel="{DynamicResource UnpolishedFilePickerLabel}"
-                           SelectedFile="{Binding UnpolishedSurfaceZygoFile, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                           DefaultExt=".asc" Filters="Zygo ASCII File (*.asc)|*.asc"
-                           Enabled="True"/>
+        <common:FilePicker Grid.Row="0"
+                    FilePickerLabel="{DynamicResource UnpolishedFilePickerLabel}"
+                    SelectedFile="{Binding UnpolishedSurfaceZygoFile, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                    DefaultExt=".asc" Filters="Zygo ASCII File (*.asc)|*.asc"
+                    Enabled="True"/>
+
 
         <TabControl Grid.Row="1" TabStripPlacement="Bottom">
             <TabItem Header="{DynamicResource MaterialSettingTabTitle}">
@@ -34,18 +36,33 @@
                         <RowDefinition Height="4*"/>
                     </Grid.RowDefinitions>
 
-                    <DockPanel Grid.Row="0">
-                        <TextBlock DockPanel.Dock="Left" 
+                    <Grid Grid.Row="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="4*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="3*"/>
+                            <ColumnDefinition Width="10"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Grid.Row="1" Grid.Column="1"
                                    Text="{DynamicResource MaterialSettingTabTitle}" 
                                    HorizontalAlignment="Center" 
                                    VerticalAlignment="Center"/>
-                        
-                        <ComboBox DockPanel.Dock="Left" 
+
+                        <ComboBox Grid.Row="1" Grid.Column="3"
                                   ItemsSource="{Binding Materials}" 
                                   DisplayMemberPath="Name"
-                                  SelectedItem="{Binding SelectedMaterial}"/>
-                        
-                    </DockPanel>
+                                  SelectedItem="{Binding SelectedMaterial}"
+                                  HorizontalContentAlignment="Center"
+                                  VerticalContentAlignment="Center"/>
+                    </Grid>
 
                     <DataGrid Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" ItemsSource="{Binding MaterialSettingRawList, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                         <DataGrid.Columns>

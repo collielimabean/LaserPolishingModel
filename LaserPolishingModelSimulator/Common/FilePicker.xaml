@@ -8,17 +8,19 @@
              d:DesignHeight="50" d:DesignWidth="300">
     <Grid x:Name="root">
         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="10"/>
             <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="10"/>
             <ColumnDefinition Width="3*"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <TextBlock Text="{Binding Path=FilePickerLabel, ElementName=picker}" HorizontalAlignment="Center" VerticalAlignment="Center" Background="White"/>
+        <TextBlock Grid.Column="1" Text="{Binding Path=FilePickerLabel, ElementName=picker}" HorizontalAlignment="Center" VerticalAlignment="Center" Background="White"/>
         
-        <TextBox Grid.Column="1" IsReadOnly="True" Text="{Binding Path=SelectedFile, ElementName=picker}"
+        <TextBox Grid.Column="3" IsReadOnly="True" Text="{Binding Path=SelectedFile, ElementName=picker}"
                  IsEnabled="{Binding Path=Enabled, ElementName=picker}" HorizontalContentAlignment="Center"
-                 VerticalContentAlignment="Center" HorizontalScrollBarVisibility="Visible"/>
+                 VerticalContentAlignment="Center" HorizontalScrollBarVisibility="Auto"/>
         
-        <Button Grid.Column="2" Content="{DynamicResource Browse}" Click="Browse_Click"/>
+        <Button Grid.Column="4" Content="{DynamicResource Browse}" Click="Browse_Click"/>
     </Grid>
 </UserControl>
