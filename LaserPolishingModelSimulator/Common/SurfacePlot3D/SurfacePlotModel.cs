@@ -113,7 +113,7 @@ namespace LaserPolishingModelSimulator.Common.SurfacePlot3D
             {
                 for (int j = 0; j < m; j++)
                 {
-                    Point3D point = new Point3D(xArray[i], yArray[j], zData2DArray[i, j]);
+                    Point3D point = new Point3D(xArray[j], yArray[i], zData2DArray[i, j]);
                     newDataArray[i, j] = point;
                 }
             }
@@ -124,6 +124,8 @@ namespace LaserPolishingModelSimulator.Common.SurfacePlot3D
         public void PlotData(Point3D[,] point3DArray)
         {
             // Directly plot from a Point3D array
+            dataPoints = point3DArray;
+            RaisePropertyChanged("DataPoints");
         }
 
         public void PlotFunction(Func<double, double, double> function)

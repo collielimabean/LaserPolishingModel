@@ -34,7 +34,9 @@ namespace LaserPolishingModelSimulator.Modules.InputDisplay.ViewModels
 
         void HandleLoadUnpolishedData(Surface surface)
         {
-            UnpolishedSurface.PlotData(surface.GetPoints());
+            var data = surface.ZData.ToArray();
+            UnpolishedSurface.PlotData(data);
+            //UnpolishedSurface.PlotData(surface.ZData.ToArray(), surface.XVector.ToArray(), surface.YVector.ToArray());
         }
     }
 }
