@@ -78,14 +78,47 @@ namespace LaserPolishingModelSimulator.Common.SurfacePlot3D
 
         public void PlotData(double[,] zData2DArray, double xMinimum, double xMaximum, double yMinimum, double yMaximum)
         {
+            int n = zData2DArray.GetLength(0);
+            int m = zData2DArray.GetLength(1);
+            int largest = n > m ? n : m;
 
+            double[] yArray = new double[n];
+            double[] xArray = new double[m];
+
+            // optimization: use a single for loop to the max(n, m). the smaller
+            // dimension drops out when i exceeds the dimension.
+            for (int i = 0; i < largest; i++)
+            {
+                if (largest < n)
+                    yArray[i] = yMinimum + (yMaximum - yMinimum) * ((double)i / n);
+                if (largest < m)
+                    xArray[i] = xMinimum + (xMaximum - xMinimum) * ((double)i / m);
+            }
+
+            PlotData(zData2DArray, xArray, yArray);    
         }
 
         public void PlotData(double[,] zData2DArray, double[] xArray, double[] yArray)
         {
-            // Note - check that dimensions match!!
+            if (zData2DArray.GetLength(0) != yArray.Length)
+                throw new ArgumentException("Y Dimension does not match.");
 
+            if (zData2DArray.GetLength(1) != xArray.Length)
+                throw new ArgumentException("X Dimension does not match.");
 
+            int n = zData2DArray.GetLength(0);
+            int m = zData2DArray.GetLength(1);
+            Point3D[,] newDataArray = new Point3D[n, m];
+            for (int i = 0; i < n; i++)
+            {
+                for (int j = 0; j < m; j++)
+                {
+                    Point3D point = new Point3D(xArray[i], yArray[j], zData2DArray[i, j]);
+                    newDataArray[i, j] = point;
+                }
+            }
+            dataPoints = newDataArray;
+            RaisePropertyChanged("DataPoints");
         }
 
         public void PlotData(Point3D[,] point3DArray)

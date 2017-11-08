@@ -1,10 +1,12 @@
-﻿using System;
+﻿using LaserPolishingModel.Util;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows.Media.Media3D;
 
 namespace LaserPolishingModel.Zygo
 {
@@ -244,7 +246,7 @@ namespace LaserPolishingModel.Zygo
 
                 // read phase data //
                 // conver to wave unit //
-                PhaseData = ParseIntegerArray(reader, PhaseHeight, PhaseWidth, 2147483640, IntfScaleFactor * ObliquityFactor / PhaseRes);
+                PhaseData = ParseIntegerArray(reader, PhaseHeight, PhaseWidth, 2147483640, IntfScaleFactor * WavelengthIn * ObliquityFactor / PhaseRes);
             }
         }
 
@@ -253,7 +255,7 @@ namespace LaserPolishingModel.Zygo
             string line;
             int index = 0;
             int totalNumberPoints = height * width;
-            double[,] data = new double[height, width];
+            var data = new double[height, width];
 
             while ((line = streamReader.ReadLine().Trim()) != null)
             {
@@ -278,6 +280,7 @@ namespace LaserPolishingModel.Zygo
                     if (val >= invalid_threshold)
                         val = -1;
 
+                    // put the X, Y, and Z together. X and Y scale linearly from 0 to CameraRes.
                     data[row, col] = val * scale_factor;
                     index++;
                 }

@@ -11,6 +11,7 @@ using Prism.Commands;
 using LaserPolishingModel.Zygo;
 using LaserPolishingModel.Parameter;
 using System.Collections.ObjectModel;
+using LaserPolishingModel.Util;
 
 namespace LaserPolishingModelSimulator.Modules.Input.ViewModels
 {
@@ -129,7 +130,7 @@ namespace LaserPolishingModelSimulator.Modules.Input.ViewModels
             LaserSettings = new Laser()
             {
                 AveragePower = new Parameter("Average Power", 0, "W"),
-                BeamRadius = new Parameter("Beam Radius", 0, "m"),
+                BeamRadius = new Parameter("Beam Radius", 0, "μm"),
                 PulseDuration = new Parameter("Pulse Duration", 0, "s"),
                 PulseFrequency = new Parameter("Pulse Frequency", 0, "Hz"),
                 DutyCycle = new Parameter("Duty Cycle", 0, "%")
@@ -147,7 +148,17 @@ namespace LaserPolishingModelSimulator.Modules.Input.ViewModels
 
             // TODO: exception handling
             unpolishedSurface.LoadFromFile(unpolishedSurfaceZygoInputFile);
-            eventAggregator.GetEvent<LoadUnpolishedData>().Publish(unpolishedSurface.PhaseData);
+
+            // verify numbers //
+            var surface = new Surface(
+                unpolishedSurface.PhaseData, 
+                0,
+                unpolishedSurface.CameraRes,
+                0,
+                unpolishedSurface.CameraRes
+            );
+
+            eventAggregator.GetEvent<LoadUnpolishedData>().Publish(surface);
         }
     }
 }

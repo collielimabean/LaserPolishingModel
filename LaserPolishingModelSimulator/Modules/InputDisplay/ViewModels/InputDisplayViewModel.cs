@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using LaserPolishingModelSimulator.Events;
 using LaserPolishingModelSimulator.Common.SurfacePlot3D;
 using Prism.Events;
+using LaserPolishingModel.Util;
 
 namespace LaserPolishingModelSimulator.Modules.InputDisplay.ViewModels
 {
@@ -31,9 +32,9 @@ namespace LaserPolishingModelSimulator.Modules.InputDisplay.ViewModels
             set { unpolishedModel = value; }
         }
 
-        void HandleLoadUnpolishedData(double[,] data)
+        void HandleLoadUnpolishedData(Surface surface)
         {
-            UnpolishedSurface.PlotData(data);
+            UnpolishedSurface.PlotData(surface.GetPoints());
         }
     }
 }
