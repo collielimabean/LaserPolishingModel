@@ -129,13 +129,17 @@ namespace LaserPolishingModel.ForwardModel
                 filter_enumerable.Add(t1);
             }
 
-            var filter = Matrix<Double>.Build.DenseOfColumnVectors(filter_enumerable).Transpose();
+            var filter = Matrix<double>.Build.DenseOfColumnVectors(filter_enumerable).Transpose();
 
             // apply low pass filter on surface //
             var redcFFT = filter.ToComplex().PointwiseMultiply(results.FFTX);
             redcFFT = redcFFT.ifftshift();
             Fourier.Inverse2D(redcFFT, FourierOptions.Matlab);
             redcFFT *= surface.XVector.Count() * surface.YVector.Count();
+
+
+            // thermocapillary prediction //
+
 
             // TODO: what to output?
         }

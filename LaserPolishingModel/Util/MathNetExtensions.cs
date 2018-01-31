@@ -94,5 +94,94 @@ namespace LaserPolishingModel.Util
 
             return mat.circshift(new Tuple<int, int>(x_shift, y_shift));
         }
+
+        public static Matrix<T> repmat<T>(this Matrix<T> mat, int dim) where T : struct, IEquatable<T>, IFormattable
+        {
+            return mat.repmat(dim, dim);
+        }
+
+        public static Matrix<T> repmat<T>(this Matrix<T> mat, int rows, int cols) where T : struct, IEquatable<T>, IFormattable
+        {
+            if (rows < 0 || cols < 0)
+                throw new ArgumentException();
+
+            int row_size = rows * mat.RowCount;
+            int col_size = cols * mat.ColumnCount;
+
+            var rep = Matrix<T>.Build.Dense(row_size, col_size);
+
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < cols; j++)
+                {
+                    rep.SetSubMatrix(i * mat.RowCount, j * mat.ColumnCount, mat);
+                }
+            }
+
+            return rep;
+        }
+
+        public static Matrix<T> repmat<T>(this Vector<T> vec, int dim, bool to_column = false) where T : struct, IEquatable<T>, IFormattable
+        {
+            return vec.repmat(dim, dim, to_column);
+        }
+
+        public static Matrix<T> repmat<T>(this Vector<T> vec, int rows, int cols, bool to_column = false) where T : struct, IEquatable<T>, IFormattable
+        {
+            var mat = to_column ? vec.ToColumnMatrix() : vec.ToRowMatrix();
+            return mat.repmat(rows, cols);
+        }
+
+        public static Tuple<Matrix<T>, Matrix<T>> meshgrid<T>(Vector<T> x, Vector<T> y) where T : struct, IEquatable<T>, IFormattable
+        {
+            var xx = x.repmat(y.Count(), 1);
+            var yy = y.repmat(1, x.Count(), true);
+
+            return new Tuple<Matrix<T>, Matrix<T>>(xx, yy);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="callback">method(current_cell_value, ????)</param>
+        /// <param name="arg1">arg to pass into ????? above</param>
+        /// <returns></returns>
+        public static Matrix<T> Pointwise<T>(this Matrix<T> mat, Func<T, T, T> callback, T arg1) where T : struct, IEquatable<T>, IFormattable
+        {
+            var m = mat.Clone();
+
+            Parallel.For(0, m.RowCount, i =>
+            {
+                for (int j = 0; j < m.ColumnCount; j++)
+                    m[i, j] = callback(mat[i, j], arg1);
+            });
+
+            return m;
+        }
+
+        /// <summary>
+        /// Equivalent to a(b), where a is a generic matrix and b is a logical matrix with the same dimensions.
+        /// Note that 0 -> false, nonzero (usually 1) = true.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="mat"></param>
+        /// <param name="logical"></param>
+        /// <returns></returns>
+        public static Vector<T> LogicalExtract<T>(this Matrix<T> mat, Matrix<double> logical) where T : struct, IEquatable<T>, IFormattable
+        {
+            var matched_items = new List<T>();
+
+            if (mat.RowCount != logical.RowCount && mat.ColumnCount != logical.ColumnCount)
+                throw new ArgumentException();
+
+            var merged = mat.Enumerate().Zip(logical.Enumerate(), (first, second) => new Tuple<T, double>(first, second));
+
+            foreach (var item in merged)
+                if ((int) item.Item2 != 0)
+                    matched_items.Add(item.Item1);
+
+            return Vector<T>.Build.DenseOfEnumerable(matched_items);
+        }
     }
 }
