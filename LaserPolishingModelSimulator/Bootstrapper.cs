@@ -1,6 +1,7 @@
 ﻿using LaserPolishingModelSimulator.Modules.Input;
 using LaserPolishingModelSimulator.Modules.InputDisplay;
 using LaserPolishingModelSimulator.Modules.Menu;
+using LaserPolishingModelSimulator.Modules.OutputDisplay;
 using Prism.Modularity;
 using Prism.Unity;
 using System;
@@ -15,7 +16,8 @@ namespace LaserPolishingModelSimulator
         {
             typeof(MenuModule),
             typeof(InputModule),
-            typeof(InputDisplayModule)
+            typeof(InputDisplayModule),
+            typeof(OutputDisplayModule)
         };
 
         protected override DependencyObject CreateShell()

@@ -12,6 +12,7 @@ using LaserPolishingModel.Zygo;
 using LaserPolishingModel.Parameter;
 using System.Collections.ObjectModel;
 using LaserPolishingModel.Util;
+using MathNet.Numerics.LinearAlgebra;
 
 namespace LaserPolishingModelSimulator.Modules.Input.ViewModels
 {
@@ -159,6 +160,20 @@ namespace LaserPolishingModelSimulator.Modules.Input.ViewModels
             );
 
             eventAggregator.GetEvent<LoadUnpolishedData>().Publish(surface);
+
+            var x = Vector<double>.Build.DenseOfEnumerable(IEnumerableExtensions.Range(0, unpolishedSurface.CameraRes, unpolishedSurface.CameraWidth));
+            var y = Vector<double>.Build.DenseOfEnumerable(IEnumerableExtensions.Range(0, unpolishedSurface.CameraRes, unpolishedSurface.CameraHeight));
+
+            var z = Ripples.GenerateRipples(x, y, 0.21, 100, 5, 10, 10);
+            var rippleSurface = new Surface(
+                z,
+                -unpolishedSurface.CameraRes / 2.0,
+                unpolishedSurface.CameraRes / 200,
+                -unpolishedSurface.CameraRes / 2.0,
+                unpolishedSurface.CameraRes / 2.0
+            );
+
+            eventAggregator.GetEvent<LoadRippleData>().Publish(rippleSurface);
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using Prism.Events;
+﻿using LaserPolishingModelSimulator.Common;
+using LaserPolishingModelSimulator.Modules.OutputDisplay.Views;
+using Prism.Events;
 using Prism.Modularity;
 using Prism.Regions;
 using System;
@@ -20,7 +22,7 @@ namespace LaserPolishingModelSimulator.Modules.OutputDisplay
 
         public void Initialize()
         {
-            throw new NotImplementedException();
+            regionManager.RegisterViewWithRegion(Regions.OUTPUT_DISPLAY_REGION, typeof(OutputDisplayView));
         }
     }
 }

@@ -29,7 +29,6 @@ namespace ForwardModelSimpleTester
 
         static void Main(string[] args)
         {
-            /*
             var unpolishedSurface = new ZygoAsciiFile();
             unpolishedSurface.LoadFromFile(@"C:\Users\William\Downloads\Sensitivity Edit - Brodan\1-15-15_MilledH_1_20x.asc");
 
@@ -177,18 +176,9 @@ namespace ForwardModelSimpleTester
             Console.WriteLine(redcFFT);
             redcFFT *= surface.XVector.Count() * surface.YVector.Count();
             Console.WriteLine(redcFFT);
-            */
 
-            /*
-            var x = Vector<double>.Build.DenseOfEnumerable(from i in Enumerable.Range(1, 3) select (double) i);
-            var y = Vector<double>.Build.DenseOfEnumerable(from i in Enumerable.Range(1, 5) select (double) i);
-
-            var res = meshgrid(x, y);
-
-            Console.WriteLine(res.Item1);
-            var threshold = res.Item1.Pointwise((cell, arg1) => cell < arg1 ? 1 : 0, 3);
-            Console.WriteLine(threshold);
-            */
+            // begin thermocapillary
+            
 
 
             Console.ReadKey();

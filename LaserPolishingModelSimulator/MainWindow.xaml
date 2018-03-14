@@ -39,6 +39,7 @@
             </Border>
 
             <Border Grid.Row="3" Grid.Column="3" BorderBrush="Black"  BorderThickness="2 2 2 2">
+                <ContentControl prism:RegionManager.RegionName="{x:Static common:Regions.OUTPUT_DISPLAY_REGION}"/>
             </Border>
         </Grid>
     </DockPanel>

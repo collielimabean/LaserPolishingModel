@@ -140,6 +140,11 @@ namespace LaserPolishingModel.Util
             return new Tuple<Matrix<T>, Matrix<T>>(xx, yy);
         }
 
+        public static Tuple<Matrix<T>, Matrix<T>> meshgrid<T>(IEnumerable<T> x, IEnumerable<T> y) where T : struct, IEquatable<T>, IFormattable
+        {
+            return meshgrid(Vector<T>.Build.DenseOfEnumerable(x), Vector<T>.Build.DenseOfEnumerable(y));
+        }
+
         /// <summary>
         /// 
         /// </summary>

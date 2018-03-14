@@ -10,7 +10,10 @@
              prism:ViewModelLocator.AutoWireViewModel="True">
     <Grid Background="White">
         <TabControl TabStripPlacement="Bottom">
-            
+            <TabItem Header="Ripples">
+                <surfplot:SurfacePlotView Title="Ripples"
+                    DataContext="{Binding RipplesModel, UpdateSourceTrigger=PropertyChanged}"/>
+            </TabItem>
         </TabControl>
     </Grid>
 </UserControl>

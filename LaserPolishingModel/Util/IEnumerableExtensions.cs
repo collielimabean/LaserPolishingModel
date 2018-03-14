@@ -56,5 +56,21 @@ namespace LaserPolishingModel.Util
 
             return RangeIterator(start, end, step);
         }
+
+        public static IEnumerable<double> Range(double start, double end, int num_elements)
+        {
+            if (num_elements < 0)
+                throw new ArgumentException();
+
+            IEnumerable<double> RangeIterator(double _start, double _stop, int _num_elements)
+            {
+                double step = (_stop - _start) / _num_elements;
+
+                for (int i = 0; i < _num_elements; i++)
+                    yield return _start + (i * step);
+            }
+
+            return RangeIterator(start, end, num_elements);
+        }
     }
 }
