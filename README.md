@@ -1,8 +1,12 @@
-Laser Polishing Model Simulator
+Sample Module Repository
 ========================
 
-# Building
-Open in Visual Studio 2017, and build.
+This simple project is an example repo for Python projects.
 
-# Running
-Requires .NET Framework 4.5 or higher.
+`Learn more <http://www.kennethreitz.org/essays/repository-structure-and-python>`_.
+
+---------------
+
+If you want to learn more about ``setup.py`` files, check out `this repository <https://github.com/kennethreitz/setup.py>`_.
+
+✨🍰✨
