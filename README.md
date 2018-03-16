@@ -1,12 +1,14 @@
-Sample Module Repository
+Laser Polishing Model Simulator
 ========================
 
-This simple project is an example repo for Python projects.
+## Running the web interface
+1. Install npm and python 3.
+2. Run `pip install -r requirements.txt` in the top level.
+3. Run `npm install` in the frontend folder.
+4. Run `npm run build` in the frontend folder.
+5. Run `python backend/app.py`
+6. Navigate to http://localhost:5000/ for the application.
 
-`Learn more <http://www.kennethreitz.org/essays/repository-structure-and-python>`_.
-
----------------
-
-If you want to learn more about ``setup.py`` files, check out `this repository <https://github.com/kennethreitz/setup.py>`_.
-
-✨🍰✨
+## Running a command-line version
+1. Navigate to the backend/cli folder.
+2. Run any python script in there.

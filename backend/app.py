@@ -6,6 +6,13 @@ app = Flask(__name__, static_folder='../frontend/build/static', template_folder=
 def get_home():
     return render_template('index.html')
 
+@app.route('/api/upload_zygo_file')
+def process_zygo_file():
+    pass
+
+@app.route('/api/run_forward_model')
+def run_forward_model():
+    pass
 
 if __name__ == '__main__':
     app.run(debug=True)
