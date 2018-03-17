@@ -14,11 +14,18 @@ class SpotParameters:
 
     def create_spot(self):
         num_pts = int((2 * self.r_melt) / self.gridset)
+        r_peak_sq = np.power(self.r_peak, 2)
+        outer_region_offset = self.z_peak - self.ifs_outer * self.r_peak
+
         xy_bounds = np.linspace(-self.r_melt, self.r_melt, num_pts)
         x, y = np.meshgrid(xy_bounds, xy_bounds)
-        #circular_region = (ifs_inner * ((x.^2 + y.^2).^0.5) + z_valley) .* (x.^2 + y.^2 < r_peak^2);
-        #outer_region = (ifs_outer * ((x.^2 + y.^2).^0.5) + outer_region_offset) .* (x.^2 + y.^2 >= r_peak^2);
-        #return circular_region + outer_region
+
+        grid = np.power(x, 2) + np.power(y, 2)
+        return np.piecewise(
+            grid, 
+            [grid < r_peak_sq, grid >= r_peak_sq], 
+            [lambda s: self.ifs_inner * np.sqrt(s) + self.z_valley, lambda s: self.ifs_outer * np.sqrt(s) + outer_region_offset]
+        )
 
 def ripples():
     pass
