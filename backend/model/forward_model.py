@@ -115,5 +115,6 @@ def run_forward_model(zygo, material, laser, config=ForwardModelConfig()):
 
     # plotting and more
 
-
+    ### thermocapillary prediction
+    
 
