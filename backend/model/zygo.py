@@ -1,4 +1,5 @@
 import re
+import numpy as np
 
 class ZygoAsciiFile:
     HEADER_REGEX = (r"Zygo ASCII Data File - Format \d+\n"
@@ -17,6 +18,8 @@ class ZygoAsciiFile:
 	r"\"(.*)\"\n"
 	r"#")
 
+    HEADER_DELIMITER = '#'
+
     HEADER_FIELDS = [
         ('software_type', int),
         ('major_version', int),
@@ -25,14 +28,14 @@ class ZygoAsciiFile:
         'software_date',
         ('intens_origin_x', float),
         ('intens_origin_y', float),
-        ('intens_width', float),
-        ('intens_height', float),
+        ('intens_width', int),
+        ('intens_height', int),
         ('n_buckets', int),
         ('intens_range', float),
         ('phase_origin_x', float),
         ('phase_origin_y', float),
-        ('phase_width', float),
-        ('phase_height', float),
+        ('phase_width', int),
+        ('phase_height', int),
         'comment',
         'part_serial_number',
         'part_number',
@@ -100,5 +103,23 @@ class ZygoAsciiFile:
                 else:
                     self.__dict__[header_field] = group.strip()
 
+            if self.n_buckets != 1:
+                raise Exception('> 1 bucket not supported')
+
+            self.phase_res = 32768 if self.phase_res == 1 else 4096
+            data = raw_text.split('#')
+            self.intensity_data = self._parse_int_array(data[1], self.intens_height, self.intens_width, 65535)
+            self.phase_data = self._parse_int_array(data[2], self.phase_height, self.phase_width, 2147483640, self.intf_scale_factor)
+
+    def _parse_int_array(self, raw_array, height, width, invalid_threshold, scale_factor = 1):
+        parsed_array = np.fromstring(raw_array, dtype=float, sep=' ')
+        parsed_array[parsed_array > invalid_threshold] = -1
+        return np.reshape(a, [height, width]) * scale_factor
+
     def __str__(self):
         return str(self.__dict__)
+
+if __name__ == "__main__":
+    a = ZygoAsciiFile("C:\\Users\\William\\Documents\\Sensitivity Edit - Brodan\\1-15-15_MilledH_1_20x.asc")
+    print(str(a))
+    print(np.shape(a.intensity_data))
