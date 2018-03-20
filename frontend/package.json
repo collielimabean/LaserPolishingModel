@@ -8,6 +8,7 @@
     "react": "^16.2.0",
     "react-cellblock": "^3.0.4",
     "react-dom": "^16.2.0",
+    "react-file-reader-input": "^1.1.4",
     "react-plotly.js": "^1.7.0",
     "react-scripts": "1.1.1",
     "react-select": "^1.2.1",
