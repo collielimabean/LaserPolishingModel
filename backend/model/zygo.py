@@ -114,7 +114,7 @@ class ZygoAsciiFile:
     def _parse_int_array(self, raw_array, height, width, invalid_threshold, scale_factor = 1):
         parsed_array = np.fromstring(raw_array, dtype=float, sep=' ')
         parsed_array[parsed_array > invalid_threshold] = -1
-        return np.reshape(a, [height, width]) * scale_factor
+        return np.reshape(parsed_array, [height, width]) * scale_factor
 
     def __str__(self):
         return str(self.__dict__)

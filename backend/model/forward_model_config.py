@@ -1,6 +1,5 @@
 
 class ForwardModelConfig:
-    
     def __init__(self, melt_time_assumption='standard', surface_absorption_method='standard',
                 show_code_settings=False, show_material_properties=False, show_general_figures=False,
                 show_debugging_figures=False, show_console_output=False):

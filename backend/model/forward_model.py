@@ -1,6 +1,7 @@
 from .centeredfft2 import centeredfft2
 from .forward_model_config import ForwardModelConfig
 from .zygo import ZygoAsciiFile
+from .ripples import ripples
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -56,8 +57,10 @@ def run_forward_model(zygo, material, laser, config=ForwardModelConfig()):
     if fcr < fwall:
         fcr = fwall
 
-    # prepare surface
+    # load surface & accompanying axis vectors
     surface = zygo.phase_data * 1e6
+    X = np.arange(0, (np.size(surface, 1)) * surface.camera_resolution)
+    Y = np.arange(0, (np.size(surface, 0)) * surface.camera_resolution)
 
     # TODO: knnimpute
 
@@ -66,8 +69,8 @@ def run_forward_model(zygo, material, laser, config=ForwardModelConfig()):
     surface = np.flipud(surface)
 
     # run 2D FFT
-    FsX = 1 / zygo.camera_res
-    FsY = 1 / zygo.camera_res
+    FsX = 1 / zygo.camera_resolution
+    FsY = 1 / zygo.camera_resolution
 
     freqX, freqY, fft, fft2 = centeredfft2(surface, FsX, FsY)
     if config.show_console_output:
@@ -111,10 +114,13 @@ def run_forward_model(zygo, material, laser, config=ForwardModelConfig()):
 
     redcFFT = cap_filter * fft # Compensating for the centeredFFT normalization
     abc = np.fft.ifftshift(redcFFT) # Inverse shifting so as to get into the form recognized by matlab.
-    Z_redc = np.fft.ifft2(abc, 'symmetric') * M * N
+    Z_redc = np.fft.ifft2(abc) * M * N
 
     # plotting and more
 
     ### thermocapillary prediction
-    
+    Z_rip = ripples(X, Y, afs, 100, 10, 5)
+
+    # another plot
+
 
