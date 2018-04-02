@@ -123,4 +123,155 @@ def run_forward_model(zygo, material, laser, config=ForwardModelConfig()):
 
     # another plot
 
+    # COMBINE THERMOCAPILLARY RIPPLES TO CAPILLARY FILTERED SURFACE AND PLOT
+    Z_pred = Z_redc + Z_rip
 
+    # 2D FAST FOURIER TRANSFORMATION OF THE PREDICTED SURFACE
+    freqX_pred, freqY_pred, FFT_pred, _ = centeredfft2(Z_pred, FsX, FsY)
+
+    if config.show_debugging_figures:
+        plt.figure()
+        plt.plot(freqX_pred, np.abs(FFT_pred))
+        plt.title('Total Frequency spectrum in X-direction of Predicted Sample')
+
+        plt.figure() 
+        plt.plot(freqY_pred, np.abs(FFT_pred))
+        plt.title('Total Frequency spectrum in Y-direction of Predicted Sample')
+
+    # CROSS SECTION OF THE FREQUENCY SPECTRUM OF THE PREDICTED SURFACE
+    fft_pred_ind_x = np.where(freqX_pred == 0)[0]
+    fft_pred_x = FFT_pred[fft_pred_ind_x]
+
+    fft_pred_ind_y = np.where(freqY_pred == 0)[0]
+    fft_pred_y = FFT_pred[fft_pred_ind_y]
+
+    if config.show_debugging_figures:
+        plt.figure() 
+        plt.plot(freqX_pred.T, np.abs(fft_pred_x))
+        plt.title('Cross-Section Frequency spectrum in X-direction of Predicted Sample')
+
+        plt.figure()
+        plt.plot(freqY_pred.T, np.abs(fft_pred_y))
+        plt.title('Cross-Section Frequency spectrum in Y-direction of Predicted Sample')
+
+
+    """
+    %% APPLY HIGH-PASS GAUSSIAN FILTERS TO ALL SURFACES TO REMOVE WAVINESS
+    % Uses wavesFlt to apply high pass gaussian filter to filter out 80 um wavelengths
+    [Z_wavifiltered_unpo] = wavesFlt(X_unpo, Y_unpo, Z_unpo);
+    [Z_wavifiltered_po] = wavesFlt(X_po, Y_po, Z_po);
+    [Z_wavifiltered_pred] = wavesFlt(X_unpo, Y_unpo, Z_pred);
+
+    %% CALCULATE SURFACE ROUGHNESS 
+    Sa_unpo = sum(sum(abs(Z_unpo-mean(mean(Z_unpo)))))./numel(Z_unpo)*1000;
+    Sq_unpo = sqrt(sum(sum((Z_unpo-mean(mean(Z_unpo))).^2))./numel(Z_unpo))*1000;
+
+    Sa_po = sum(sum(abs(Z_po-mean(mean(Z_po)))))./numel(Z_po)*1000;
+    Sq_po = sqrt(sum(sum((Z_po-mean(mean(Z_po))).^2))./numel(Z_po))*1000;
+
+    Sa_pred = sum(sum(abs(Z_pred-mean(mean(Z_pred)))))./numel(Z_pred)*1000;
+    Sq_pred = sqrt(sum(sum((Z_pred-mean(mean(Z_pred))).^2))./numel(Z_pred))*1000;
+
+    Sa_wavifiltered_unpo = sum(sum(abs(Z_wavifiltered_unpo-mean(mean(Z_wavifiltered_unpo)))))./numel(Z_wavifiltered_unpo)*1000;
+    Sq_wavifiltered_unpo = sqrt(sum(sum((Z_wavifiltered_unpo-mean(mean(Z_wavifiltered_unpo))).^2))./numel(Z_wavifiltered_unpo))*1000;
+
+    Sa_wavifiltered_po = sum(sum(abs(Z_wavifiltered_po-mean(mean(Z_wavifiltered_po)))))./numel(Z_wavifiltered_po)*1000;
+    Sq_wavifiltered_po = sqrt(sum(sum((Z_wavifiltered_po-mean(mean(Z_wavifiltered_po))).^2))./numel(Z_wavifiltered_po))*1000;
+
+    Sa_wavifiltered_pred = sum(sum(abs(Z_wavifiltered_pred-mean(mean(Z_wavifiltered_pred)))))./numel(Z_wavifiltered_pred)*1000;
+    Sq_wavifiltered_pred = sqrt(sum(sum((Z_wavifiltered_pred-mean(mean(Z_wavifiltered_pred))).^2))./numel(Z_wavifiltered_pred))*1000;
+
+    fprintf('Sa_unpo, Sa_wavifiltered_unpo, Sq_unpo, Sq_wavifiltered_unpo')
+    round([Sa_unpo Sa_wavifiltered_unpo Sq_unpo Sq_wavifiltered_unpo])
+
+    fprintf('Sa_po, Sa_wavifiltered_po, Sq_po, Sq_wavifiltered_po')
+    round([Sa_po Sa_wavifiltered_po Sq_po Sq_wavifiltered_po])
+
+    fprintf('Sa_pred, Sa_wavifiltered_pred, Sq_pred, Sq_wavifiltered_pred')
+    round([Sa_pred Sa_wavifiltered_pred Sq_pred Sq_wavifiltered_pred])
+
+    %% SUM FREQUENCY SPECTRUM
+    % Uses for if calling multiple times - Needs to be incorporated
+    FFT_unpo_X_sum = FFT_unpo_X_sum + FFT_unpo_X;
+    FFT_unpo_Y_sum = FFT_unpo_Y_sum + FFT_unpo_Y;
+
+    FFT_pred_X_sum = FFT_pred_X_sum + FFT_pred_X;
+    FFT_pred_Y_sum = FFT_pred_Y_sum + FFT_pred_Y;
+
+    FFT_po_X_sum = FFT_po_X_sum + FFT_po_X;
+    FFT_po_Y_sum = FFT_po_Y_sum + FFT_po_Y;
+
+    Sa_pred_sum = Sa_pred_sum + Sa_pred  ;
+    Sq_pred_sum = Sq_pred_sum + Sq_pred ;
+
+    Sa_po_sum = Sa_po_sum + Sa_po; 
+    Sq_po_sum = Sq_po_sum + Sq_po ;
+
+    %% AVERAGE FREQUENCY SPECTRA
+    % Used for avweraging many spectras TODO - Incorporate averaging
+    FFT_unpo_X_avg = FFT_unpo_X_sum/1;
+    FFT_unpo_Y_avg = FFT_unpo_Y_sum/1;
+
+    FFT_pred_X_avg = FFT_pred_X_sum/1;
+    FFT_pred_Y_avg = FFT_pred_Y_sum/1;
+
+    FFT_po_X_avg = FFT_po_X_sum/1;
+    FFT_po_Y_avg = FFT_po_Y_sum/5;
+
+    Sa_pred_avg = Sa_pred_sum/1;
+    Sq_pred_avg = Sq_pred_sum/1;
+
+    Sa_po_avg = Sa_po_sum/1;
+    Sq_po_avg = Sq_po_sum/1;
+
+    %round([Sa_pred_avg Sa_poli_avg Sq_pred_avg Sq_poli_avg])
+
+    %% FREQUENCY PLOT COMPARISONS
+    if or(ShowGeneralFigures,ShowDebuggingFigures)==1
+        % Spatial Frequency in X
+        figure
+        SoF = 16;
+        plot(freqX_unpo,abs(FFT_unpo_X_avg),'-r','linewidth',2.5)
+        hold on
+        plot(freqX_po,abs(FFT_po_X_avg),'-b','linewidth',2.5)
+        plot(freqX_pred,abs(FFT_pred_X_avg),'-g','linewidth',2.5)
+        plot([12.5 12.5],[0 0.1],'--k','linewidth',2.5)
+        hold off
+        legend('Unpolished','Polished','Predicted')
+        axis([0 300 0 0.05])
+        xlabel('Spatial Frequency f_x (mm^-^1)','FontName','Arial','fontsize',SoF);
+        ylabel('Amplitude (\mum)','FontName','Arial','fontsize',SoF);
+        set(gca,'FontName','Arial','fontsize',SoF-2);
+        annotation('arrow',[0.3125 0.18],[0.645238095238098 0.569047619047622]);
+        annotation('textbox',...
+            [0.315285714285714 0.62857142857143 0.274 0.0714285714285727],...
+            'String',{'f_c = 12.5 mm^-^1'},...
+            'FontSize',SoF,...
+            'FontName','Arial',...
+            'FitBoxToText','off',...
+            'LineStyle','none');
+
+        % Spatial Frequency in Y
+        figure
+        plot(freqY_unpo,abs(FFT_unpo_Y_avg),'-r','linewidth',2.5)
+        hold on
+        plot(freqY_po,abs(FFT_po_Y_avg),'-b','linewidth',2.5)
+        plot(freqY_pred,abs(FFT_pred_Y_avg),'-g','linewidth',2.5)
+        plot([12.5 12.5],[0 0.1],'--k','linewidth',2.5);
+        hold off
+        legend('Unpolished','Polished','Predicted')
+        axis([0 300 0 0.05])
+
+        xlabel('Spatial Frequency f_y (mm^-^1)','FontName','Arial','fontsize',SoF);
+        ylabel('Amplitude (\mum)','FontName','Arial','fontsize',SoF);
+        set(gca,'FontName','Arial','fontsize',SoF-2);
+        annotation('arrow',[0.3125 0.18],[0.645238095238098 0.569047619047622]);
+        annotation('textbox',...
+            [0.315285714285714 0.62857142857143 0.274 0.0714285714285727],...
+            'String',{'f_c = 12.5 mm^-^1'},...
+            'FontSize',SoF,...
+            'FontName','Arial',...
+            'FitBoxToText','off',...
+            'LineStyle','none');
+    end  
+    """
