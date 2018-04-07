@@ -1,8 +1,8 @@
-from backend.model.forward_model import run_forward_model
-from backend.model.forward_model_config import ForwardModelConfig
-from backend.model.laser import Laser
-from backend.model.material import Material
-from backend.model.zygo import ZygoAsciiFile
+from .model.forward_model import run_forward_model
+from .model.forward_model_config import ForwardModelConfig
+from .model.laser import Laser
+from .model.material import Material
+from .model.zygo import ZygoAsciiFile
 
 SURFACE_FILE_PATH = '../data/1-15-15_MilledH_1_20x.asc'
 

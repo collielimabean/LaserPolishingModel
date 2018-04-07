@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy import optimize, interpolate
-from zygo import ZygoAsciiFile
+from .zygo import ZygoAsciiFile
 
 class SpotParameters:
     def __init__(self, ifs_inner, ifs_outer, r_melt, 
