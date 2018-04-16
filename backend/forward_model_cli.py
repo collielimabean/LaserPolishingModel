@@ -3,6 +3,7 @@ from .model.forward_model_config import ForwardModelConfig
 from .model.laser import Laser
 from .model.material import Material
 from .model.zygo import ZygoAsciiFile
+from .model.output_cache import OutputCache
 
 SURFACE_FILE_PATH = '../data/1-15-15_MilledH_1_20x.asc'
 
@@ -13,4 +14,7 @@ config = ForwardModelConfig(melt_time_assumption='standard', surface_absorption_
                 show_code_settings=False, show_material_properties=False, show_general_figures=False,
                 show_debugging_figures=False, show_console_output=False)
 
-run_forward_model(zygo, material, laser, config)
+
+outputCache = OutputCache()
+run_forward_model(zygo, material, laser, outputCache, config)
+outputCache.dump_to_console()

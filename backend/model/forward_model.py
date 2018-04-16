@@ -1,5 +1,6 @@
 from .centeredfft2 import centeredfft2
 from .ripples import ripples
+from .forward_model_config import ForwardModelConfig
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -12,7 +13,7 @@ PULSE_DURATION = [0, 50, 100, 200, 300, 400, 500, 750, 1000]       # [ns] Pulse 
 MAX_MELT_TIME = [0, 102, 215, 406, 653, 868, 1096, 1615, 2090]     # [ns] Maximum melt time 
 
 
-def run_forward_model(zygo, material, laser):
+def run_forward_model(zygo, material, laser, outputCache, config=ForwardModelConfig()):
     if config.show_code_settings:
         print(str(config))
 
