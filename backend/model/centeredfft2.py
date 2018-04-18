@@ -4,10 +4,10 @@ def centeredfft2(Z, FsX, FsY):
     M = np.size(Z, 1)
     N = np.size(Z, 0)
 
-    k = range(-M // 2, M // 2)
+    k = np.array(range(-M // 2, M // 2))
     freqX = k / (M / FsX)
 
-    k = range(-N // 2, N // 2)
+    k = np.array(range(-N // 2, N // 2))
     freqY = k / (N / FsY)
 
     fft = np.fft.fft2(Z) / (M * N)

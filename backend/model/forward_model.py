@@ -29,7 +29,7 @@ def run_forward_model(zygo, material, laser, outputCache, config=ForwardModelCon
             (material.alpha_td / (16 * (material.absp ** 2) * laser.pulse_average_power)) * 1e9
     else:
         p = np.polyfit(PULSE_DURATION, MAX_MELT_TIME, 1)
-        melt_time = p(1) * (laser.pulse_duration * 1e9) + p(2)
+        melt_time = p[1] * (laser.pulse_duration * 1e9) + p[0]
 
     # [K] Maximum melt temperature in center of melt pool using 1D model
     Tn = 4 * (material.absp) * (laser.pulse_average_power / \
@@ -59,8 +59,8 @@ def run_forward_model(zygo, material, laser, outputCache, config=ForwardModelCon
 
     # load surface & accompanying axis vectors
     surface = zygo.phase_data * 1e6
-    X = np.arange(0, (np.size(surface, 1)) * surface.camera_resolution)
-    Y = np.arange(0, (np.size(surface, 0)) * surface.camera_resolution)
+    X = np.arange(0, (np.size(surface, 1)) * zygo.camera_resolution)
+    Y = np.arange(0, (np.size(surface, 0)) * zygo.camera_resolution)
 
     # TODO: knnimpute
 

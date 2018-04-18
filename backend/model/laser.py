@@ -5,6 +5,6 @@ class Laser:
         self.beam_radius = beam_radius
         self.pulse_duration = pulse_duration
         self.avg_power = avg_power
-        self.duty_cycle = self.duty_cycle
+        self.duty_cycle = duty_cycle
         self.pulse_frequency = pulse_frequency
         self.pulse_average_power = avg_power / (pulse_frequency * pulse_duration)

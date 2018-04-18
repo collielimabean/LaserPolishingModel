@@ -6,6 +6,7 @@ from .material import *
 from .parameter import *
 from .ripples import *
 from .zygo import *
+from .output_cache import *
 
 # modules that depend on others
 from .forward_model import *
