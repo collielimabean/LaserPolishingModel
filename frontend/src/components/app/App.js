@@ -8,7 +8,7 @@ export default class App extends Component {
   material_values = [
     {name: "stc", value: 0, units: "-", comments: ""},
     {name: "mu", value: 0, units: "m^2/s", comments: ""},
-    {name: "alpha", value: 0, units: "W/m-K", comments: ""},
+    {name: "k", value: 0, units: "W/m-K", comments: ""},
     {name: "rho_c", value: 0, units: "J/m^3-K", comments: ""},
     {name: "rho", value: 0, units: "kg/m^3", comments: ""},
     {name: "T_m", value: 0, units: "K", comments: ""},
@@ -43,7 +43,7 @@ export default class App extends Component {
       laser: this.laser_values,
       zygo: this.state.zygoText
     };
-
+    
     if (!payload.zygo) {
       alert("Please load a Zygo file first.");
       return;
@@ -102,7 +102,7 @@ export default class App extends Component {
 
           <div>
             <OutputWindow
-              output={this.state.outputs}
+              outputs={this.state.outputs}
               outputGraphs={this.state.outputGraphs}/>
           </div>
         </div>

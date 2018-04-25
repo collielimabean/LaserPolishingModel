@@ -1,7 +1,6 @@
 
 class Material:
-    def __init__(self, name, stc, mu, k, rho_c, T_m, T_b, absp, rho):
-        self.name = name
+    def __init__(self, stc, mu, k, rho_c, T_m, T_b, absp, rho):
         self.stc = stc
         self.mu = mu
         self.k = k

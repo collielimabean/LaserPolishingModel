@@ -109,7 +109,9 @@ class ZygoAsciiFile:
             self.phase_res = 32768 if self.phase_res == 1 else 4096
             data = raw_text.split('#')
             self.intensity_data = self._parse_int_array(data[1], self.intens_height, self.intens_width, 65535)
-            self.phase_data = self._parse_int_array(data[2], self.phase_height, self.phase_width, 2147483640, self.intf_scale_factor)
+
+            phase_data_scale_factor = self.intf_scale_factor * self.wavelength_in * self.obliquity_factor / self.phase_res
+            self.phase_data = self._parse_int_array(data[2], self.phase_height, self.phase_width, 2147483640, phase_data_scale_factor)
 
     def _parse_int_array(self, raw_array, height, width, invalid_threshold, scale_factor = 1):
         parsed_array = np.fromstring(raw_array, dtype=float, sep=' ')

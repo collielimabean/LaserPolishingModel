@@ -34,7 +34,7 @@ export default class OutputWindow extends Component {
               this.props.outputGraphs.map((og) => {
                 return (
                   <TabPanel>
-                    <h1>{og.name}</h1>
+                    <Plot data={[og]} layout={{title:og.name}}/>
                   </TabPanel>
                 );
               })

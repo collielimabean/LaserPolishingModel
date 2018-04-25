@@ -1,10 +1,6 @@
 from flask import Flask, jsonify, render_template, request, redirect, url_for
-from .model.forward_model import run_forward_model
-from .model.forward_model_config import ForwardModelConfig
-from .model.laser import Laser
-from .model.material import Material
-from .model.zygo import ZygoAsciiFile
-from .model.output_cache import OutputCache
+from functools import reduce
+from model import *
 import string
 
 app = Flask(__name__, static_folder='../frontend/build/static', template_folder='../frontend/build')
@@ -16,12 +12,23 @@ def get_home():
 @app.route('/api/run_forward_model', methods=['POST'])
 def server_run_forward_model():
     data = request.get_json()
-    return jsonify({"outputs": [{"name": "a", "value": 123, "units" :" -"}, {"name": "b", "value": 456.12, "units" :" -"}], "outputGraphs": [{"name": "g1"}, {"name": "g2"}]})
-    # in reality...
-    # outputCache = OutputCache()
-    # run_forward_config_model(zygo, material, laser, outputCache)
-    # return jsonify(outputCache.to_dict())
 
+    outputCache = OutputCache()
+
+    with open('_zygo_ascii_file.txt', 'w+') as f:
+        f.write(data['zygo'].replace('\r\n', '\n'))
+
+    mat_dict = reduce((lambda x, y: {**x, y['name']: y['value']}), data['material'], {})
+    laser_dict = reduce((lambda x, y: {**x, y['name']: y['value']}), data['laser'])
+
+    zygo = ZygoAsciiFile('_zygo_ascii_file.txt')
+    material = Material(**mat_dict)
+    laser = Laser(**laser_dict)
+    config = ForwardModelConfig(melt_time_assumption='standard', surface_absorption_method='standard',
+                show_code_settings=False, show_material_properties=False, show_general_figures=True,
+                show_debugging_figures=True, show_console_output=False)
+    #run_forward_config_model(zygo, material, laser, config, outputCache)    
+    return jsonify(outputCache.to_dict())
 
 if __name__ == '__main__':
     app.run(debug=True)

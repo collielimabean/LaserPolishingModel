@@ -1,6 +1,7 @@
 from .centeredfft2 import centeredfft2
 from .ripples import ripples
 from .forward_model_config import ForwardModelConfig
+from .wavesFlt import wavesFlt
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -29,7 +30,7 @@ def run_forward_model(zygo, material, laser, outputCache, config=ForwardModelCon
             (material.alpha_td / (16 * (material.absp ** 2) * laser.pulse_average_power)) * 1e9
     else:
         p = np.polyfit(PULSE_DURATION, MAX_MELT_TIME, 1)
-        melt_time = p[1] * (laser.pulse_duration * 1e9) + p[0]
+        melt_time = p[0] * (laser.pulse_duration * 1e9) + p[1]
 
     # [K] Maximum melt temperature in center of melt pool using 1D model
     Tn = 4 * (material.absp) * (laser.pulse_average_power / \
@@ -44,6 +45,8 @@ def run_forward_model(zygo, material, laser, outputCache, config=ForwardModelCon
         / (material.mu * material.rho_c * (laser.beam_radius ** 4)) \
         * (1 - theta_m) * np.exp(-8.80 * theta_m)
 
+    outputCache.add_output('ln', ln, '-')
+
     # [-] Average Feature Slope - Actual experimental value for S7 Tool Steel (Nicholas)
     afs = 0.001 * ln
 
@@ -57,10 +60,12 @@ def run_forward_model(zygo, material, laser, outputCache, config=ForwardModelCon
     if fcr < fwall:
         fcr = fwall
 
+    outputCache.add_output('fcr', fcr, 'Hz')
+
     # load surface & accompanying axis vectors
     surface = zygo.phase_data * 1e6
-    X = np.arange(0, (np.size(surface, 1)) * zygo.camera_resolution)
-    Y = np.arange(0, (np.size(surface, 0)) * zygo.camera_resolution)
+    X = np.arange(0, (np.size(surface, 1)) * zygo.camera_resolution * 1e3)
+    Y = np.arange(0, (np.size(surface, 0)) * zygo.camera_resolution * 1e3)
 
     # TODO: knnimpute
 
@@ -69,8 +74,8 @@ def run_forward_model(zygo, material, laser, outputCache, config=ForwardModelCon
     surface = np.flipud(surface)
 
     # run 2D FFT
-    FsX = 1 / zygo.camera_resolution
-    FsY = 1 / zygo.camera_resolution
+    FsX = 1 / (zygo.camera_resolution * 1e3) 
+    FsY = 1 / (zygo.camera_resolution * 1e3)
 
     freqX, freqY, fft, fft2 = centeredfft2(surface, FsX, FsY)
     if config.show_console_output:
@@ -81,32 +86,24 @@ def run_forward_model(zygo, material, laser, outputCache, config=ForwardModelCon
     # CROSS SECTION OF THE FREQUENCY SPECTRUM - Takes center of FFT matrix
     # USES THE OUTLINE INSTEAD OF PROFILE, WANT TO LOOK INTO BEST METHOD
     fft_ind_x = np.where(freqX == 0)[0]
-    fft_x = fft[fft_ind_x]
+    fft_y = fft[:, fft_ind_x]
 
     fft_ind_y = np.where(freqY == 0)[0]
-    fft_y = fft[fft_ind_y]
+    fft_x = fft[fft_ind_y, :]
 
     # capillary prediction starts here
     # create capillary low pass filter
     if config.show_debugging_figures:
-        plt.figure() 
-        plt.plot(freqX.T, np.abs(fft_x))
-        plt.title('Cross-Section Frequency spectrum in X-direction of Sample')
+        outputCache.add_scatter('Cross-Section Frequency spectrum in X-direction of Sample', freqX, np.abs(fft_x[0, :]))
+        outputCache.add_scatter('Cross-Section Frequency spectrum in Y-direction of Sample', freqY, np.abs(fft_y[:, 0]))
 
-        plt.figure()
-        plt.plot(freqY.T, abs(fft_y))
-        plt.title('Cross-Section Frequency spectrum in Y-direction of Sample')
-
-    cap_filter = np.zeros(np.size(fft)).T
+    cap_filter = np.zeros(np.shape(fft)).T
     for i in range(len(freqY)):
         cap_filter[:, i] = np.exp(-np.power((freqX / fcr), 2) - np.power(freqY[i] / fcr, 2))
     cap_filter = cap_filter.T
 
     if config.show_debugging_figures:
-        pass
-        #plt.figure()
-        #plt.surface(freqX_unpo,freqY_unpo,filter,'LineStyle','none')
-        #plt.title('Surface plot of filter for X and Y Frequencies')
+        outputCache.add_surface('Surface plot of filter for X and Y Frequencies', freqX, freqY, cap_filter)
 
     # APPLYING CAPILLARY LOW-PASS FILTER ON UNPOLISHED SURFACE
     M = np.size(surface, 0)
@@ -116,27 +113,25 @@ def run_forward_model(zygo, material, laser, outputCache, config=ForwardModelCon
     abc = np.fft.ifftshift(redcFFT) # Inverse shifting so as to get into the form recognized by matlab.
     Z_redc = np.fft.ifft2(abc) * M * N
 
-    # plotting and more
+    # plot filter
+    if config.show_general_figures or config.show_debugging_figures:
+        outputCache.add_surface(X, Y, Z_redc)
 
     ### thermocapillary prediction
     Z_rip = ripples(X, Y, afs, 100, 10, 5)
 
-    # another plot
+    if config.show_general_figures or config.show_debugging_figures:
+        outputCache.add_surface(X, Y, Z_rip)
 
     # COMBINE THERMOCAPILLARY RIPPLES TO CAPILLARY FILTERED SURFACE AND PLOT
     Z_pred = Z_redc + Z_rip
 
     # 2D FAST FOURIER TRANSFORMATION OF THE PREDICTED SURFACE
-    freqX_pred, freqY_pred, FFT_pred, _ = centeredfft2(Z_pred, FsX, FsY)
+    (freqX_pred, freqY_pred, FFT_pred, _) = centeredfft2(Z_pred, FsX, FsY)
 
     if config.show_debugging_figures:
-        plt.figure()
-        plt.plot(freqX_pred, np.abs(FFT_pred))
-        plt.title('Total Frequency spectrum in X-direction of Predicted Sample')
-
-        plt.figure() 
-        plt.plot(freqY_pred, np.abs(FFT_pred))
-        plt.title('Total Frequency spectrum in Y-direction of Predicted Sample')
+        outputCache.add_scatter('Total Frequency spectrum in X-direction of Predicted Sample', freqX_pred, np.abs(FFT_pred))
+        outputCache.add_scatter('Total Frequency spectrum in Y-direction of Predicted Sample', freqY_pred, np.abs(FFT_pred))
 
     # CROSS SECTION OF THE FREQUENCY SPECTRUM OF THE PREDICTED SURFACE
     fft_pred_ind_x = np.where(freqX_pred == 0)[0]
@@ -146,89 +141,41 @@ def run_forward_model(zygo, material, laser, outputCache, config=ForwardModelCon
     fft_pred_y = FFT_pred[fft_pred_ind_y]
 
     if config.show_debugging_figures:
-        plt.figure() 
-        plt.plot(freqX_pred.T, np.abs(fft_pred_x))
-        plt.title('Cross-Section Frequency spectrum in X-direction of Predicted Sample')
+        outputCache.add_scatter('Cross-Section Frequency spectrum in X-direction of Predicted Sample', freqX_pred.T, np.abs(fft_pred_x))
+        outputCache.add_scatter('Cross-Section Frequency spectrum in Y-direction of Predicted Sample', freqY_pred.T, np.abs(fft_pred_y))
 
-        plt.figure()
-        plt.plot(freqY_pred.T, np.abs(fft_pred_y))
-        plt.title('Cross-Section Frequency spectrum in Y-direction of Predicted Sample')
+    # APPLY HIGH-PASS GAUSSIAN FILTERS TO ALL SURFACES TO REMOVE WAVINESS
+    # Uses wavesFlt to apply high pass gaussian filter to filter out 80 um wavelengths
+    Z_wavifiltered_unpo, _ = wavesFlt(X, Y, surface)
+    Z_wavifiltered_pred, _ = wavesFlt(X, Y, Z_pred)
 
+    # CALCULATE SURFACE ROUGHNESS 
+    Sa_unpo = np.sum(np.abs(surface - np.mean(surface))) / np.size(surface) * 1000
+    Sq_unpo = np.sqrt(np.sum((surface - np.mean(surface)) ** 2)) / np.size(surface) * 1000
 
-    """
-    %% APPLY HIGH-PASS GAUSSIAN FILTERS TO ALL SURFACES TO REMOVE WAVINESS
-    % Uses wavesFlt to apply high pass gaussian filter to filter out 80 um wavelengths
-    [Z_wavifiltered_unpo] = wavesFlt(X_unpo, Y_unpo, Z_unpo);
-    [Z_wavifiltered_po] = wavesFlt(X_po, Y_po, Z_po);
-    [Z_wavifiltered_pred] = wavesFlt(X_unpo, Y_unpo, Z_pred);
+    Sa_pred = np.sum(np.abs(Z_pred - np.mean(Z_pred))) / np.size(Z_pred) * 1000
+    Sq_pred = np.sqrt(np.sum((Z_pred - np.mean(Z_pred)) ** 2)) / np.size(Z_pred) * 1000
 
-    %% CALCULATE SURFACE ROUGHNESS 
-    Sa_unpo = sum(sum(abs(Z_unpo-mean(mean(Z_unpo)))))./numel(Z_unpo)*1000;
-    Sq_unpo = sqrt(sum(sum((Z_unpo-mean(mean(Z_unpo))).^2))./numel(Z_unpo))*1000;
+    Sa_wavifiltered_unpo = np.sum(Z_wavifiltered_unpo - np.mean(Z_wavifiltered_unpo)) / np.size(Z_wavifiltered_unpo) * 1000
+    Sq_wavifiltered_unpo = np.sqrt((Z_wavifiltered_unpo - np.mean(Z_wavifiltered_unpo)) ** 2) / np.size(Z_wavifiltered_unpo) * 1000
 
-    Sa_po = sum(sum(abs(Z_po-mean(mean(Z_po)))))./numel(Z_po)*1000;
-    Sq_po = sqrt(sum(sum((Z_po-mean(mean(Z_po))).^2))./numel(Z_po))*1000;
+    Sa_wavifiltered_pred = np.sum(Z_wavifiltered_pred - np.mean(Z_wavifiltered_pred)) / np.size(Z_wavifiltered_pred) * 1000
+    Sq_wavifiltered_pred = np.sqrt((Z_wavifiltered_pred - np.mean(Z_wavifiltered_pred)) ** 2) / np.size(Z_wavifiltered_pred) * 1000
 
-    Sa_pred = sum(sum(abs(Z_pred-mean(mean(Z_pred)))))./numel(Z_pred)*1000;
-    Sq_pred = sqrt(sum(sum((Z_pred-mean(mean(Z_pred))).^2))./numel(Z_pred))*1000;
+    outputCache.add_output('Sa_unpo', Sa_unpo, '-')
+    outputCache.add_output('Sa_wavifiltered_unpo', Sa_wavifiltered_unpo, '-')
+    outputCache.add_output('Sq_unpo', Sq_unpo, '-')
+    outputCache.add_output('Sq_wavifiltered_unpo', Sq_wavifiltered_unpo, '-')
 
-    Sa_wavifiltered_unpo = sum(sum(abs(Z_wavifiltered_unpo-mean(mean(Z_wavifiltered_unpo)))))./numel(Z_wavifiltered_unpo)*1000;
-    Sq_wavifiltered_unpo = sqrt(sum(sum((Z_wavifiltered_unpo-mean(mean(Z_wavifiltered_unpo))).^2))./numel(Z_wavifiltered_unpo))*1000;
+    outputCache.add_output('Sa_pred', Sa_unpo, '-')
+    outputCache.add_output('Sa_wavifiltered_pred', Sa_wavifiltered_unpo, '-')
+    outputCache.add_output('Sq_pred', Sq_unpo, '-')
+    outputCache.add_output('Sq_wavifiltered_pred', Sq_wavifiltered_unpo, '-')
 
-    Sa_wavifiltered_po = sum(sum(abs(Z_wavifiltered_po-mean(mean(Z_wavifiltered_po)))))./numel(Z_wavifiltered_po)*1000;
-    Sq_wavifiltered_po = sqrt(sum(sum((Z_wavifiltered_po-mean(mean(Z_wavifiltered_po))).^2))./numel(Z_wavifiltered_po))*1000;
-
-    Sa_wavifiltered_pred = sum(sum(abs(Z_wavifiltered_pred-mean(mean(Z_wavifiltered_pred)))))./numel(Z_wavifiltered_pred)*1000;
-    Sq_wavifiltered_pred = sqrt(sum(sum((Z_wavifiltered_pred-mean(mean(Z_wavifiltered_pred))).^2))./numel(Z_wavifiltered_pred))*1000;
-
-    fprintf('Sa_unpo, Sa_wavifiltered_unpo, Sq_unpo, Sq_wavifiltered_unpo')
-    round([Sa_unpo Sa_wavifiltered_unpo Sq_unpo Sq_wavifiltered_unpo])
-
-    fprintf('Sa_po, Sa_wavifiltered_po, Sq_po, Sq_wavifiltered_po')
-    round([Sa_po Sa_wavifiltered_po Sq_po Sq_wavifiltered_po])
-
-    fprintf('Sa_pred, Sa_wavifiltered_pred, Sq_pred, Sq_wavifiltered_pred')
-    round([Sa_pred Sa_wavifiltered_pred Sq_pred Sq_wavifiltered_pred])
-
-    %% SUM FREQUENCY SPECTRUM
-    % Uses for if calling multiple times - Needs to be incorporated
-    FFT_unpo_X_sum = FFT_unpo_X_sum + FFT_unpo_X;
-    FFT_unpo_Y_sum = FFT_unpo_Y_sum + FFT_unpo_Y;
-
-    FFT_pred_X_sum = FFT_pred_X_sum + FFT_pred_X;
-    FFT_pred_Y_sum = FFT_pred_Y_sum + FFT_pred_Y;
-
-    FFT_po_X_sum = FFT_po_X_sum + FFT_po_X;
-    FFT_po_Y_sum = FFT_po_Y_sum + FFT_po_Y;
-
-    Sa_pred_sum = Sa_pred_sum + Sa_pred  ;
-    Sq_pred_sum = Sq_pred_sum + Sq_pred ;
-
-    Sa_po_sum = Sa_po_sum + Sa_po; 
-    Sq_po_sum = Sq_po_sum + Sq_po ;
-
-    %% AVERAGE FREQUENCY SPECTRA
-    % Used for avweraging many spectras TODO - Incorporate averaging
-    FFT_unpo_X_avg = FFT_unpo_X_sum/1;
-    FFT_unpo_Y_avg = FFT_unpo_Y_sum/1;
-
-    FFT_pred_X_avg = FFT_pred_X_sum/1;
-    FFT_pred_Y_avg = FFT_pred_Y_sum/1;
-
-    FFT_po_X_avg = FFT_po_X_sum/1;
-    FFT_po_Y_avg = FFT_po_Y_sum/5;
-
-    Sa_pred_avg = Sa_pred_sum/1;
-    Sq_pred_avg = Sq_pred_sum/1;
-
-    Sa_po_avg = Sa_po_sum/1;
-    Sq_po_avg = Sq_po_sum/1;
-
-    %round([Sa_pred_avg Sa_poli_avg Sq_pred_avg Sq_poli_avg])
-
-    %% FREQUENCY PLOT COMPARISONS
-    if or(ShowGeneralFigures,ShowDebuggingFigures)==1
-        % Spatial Frequency in X
+    # FREQUENCY PLOT COMPARISONS
+    if config.show_general_figures or config.show_debugging_figures:
+        """
+        # Spatial Frequency in X
         figure
         SoF = 16;
         plot(freqX_unpo,abs(FFT_unpo_X_avg),'-r','linewidth',2.5)
@@ -273,5 +220,5 @@ def run_forward_model(zygo, material, laser, outputCache, config=ForwardModelCon
             'FontName','Arial',...
             'FitBoxToText','off',...
             'LineStyle','none');
-    end  
-    """
+        """
+    return (ln, fcr, Sa_pred, Sa_wavifiltered_pred, Sq_pred, Sq_wavifiltered_pred)
