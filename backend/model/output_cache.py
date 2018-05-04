@@ -1,5 +1,6 @@
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
+from matplotlib import cm
 import numpy as np
 import json
 
@@ -45,13 +46,13 @@ class OutputCache:
 
             elif raw_fig_type == 'surface':
                 fig = plt.figure()
-                fig.title(name)
-                ax = fig.add_subplot(111, projection='3d')
+                fig.suptitle(name)
+                ax = fig.gca(projection='3d')
                 x = np.array(raw_fig['x'])
                 y = np.array(raw_fig['y'])
                 z = np.array(raw_fig['z'])
                 X, Y = np.meshgrid(x, y)
-                ax.plot_surface(X, Y, z)
+                ax.plot_surface(X, Y, z, cmap=cm.coolwarm)
 
                 if 'xlabel' in raw_fig:
                     ax.set_xlabel(raw_fig['xlabel'])

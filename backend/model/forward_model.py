@@ -64,8 +64,8 @@ def run_forward_model(zygo, material, laser, outputCache, config=ForwardModelCon
 
     # load surface & accompanying axis vectors
     surface = zygo.phase_data * 1e6
-    X = np.arange(0, (np.size(surface, 1)) * zygo.camera_resolution * 1e3)
-    Y = np.arange(0, (np.size(surface, 0)) * zygo.camera_resolution * 1e3)
+    X = np.linspace(0, (np.size(surface, 1)) * zygo.camera_resolution * 1e3, np.size(surface, 1))
+    Y = np.linspace(0, (np.size(surface, 0)) * zygo.camera_resolution * 1e3, np.size(surface, 0))
 
     # TODO: knnimpute
 
@@ -104,7 +104,7 @@ def run_forward_model(zygo, material, laser, outputCache, config=ForwardModelCon
 
     if config.show_debugging_figures:
         outputCache.add_surface('Surface plot of filter for X and Y Frequencies', freqX, freqY, cap_filter)
-
+    
     # APPLYING CAPILLARY LOW-PASS FILTER ON UNPOLISHED SURFACE
     M = np.size(surface, 0)
     N = np.size(surface, 1)
@@ -115,14 +115,14 @@ def run_forward_model(zygo, material, laser, outputCache, config=ForwardModelCon
 
     # plot filter
     if config.show_general_figures or config.show_debugging_figures:
-        outputCache.add_surface(X, Y, Z_redc)
+        outputCache.add_surface('Capillary Filtered Plot', X, Y, Z_redc)
 
     ### thermocapillary prediction
-    Z_rip = ripples(X, Y, afs, 100, 10, 5)
+    Z_rip = ripples(X, Y, afs, 100, 5, 10)
 
     if config.show_general_figures or config.show_debugging_figures:
-        outputCache.add_surface(X, Y, Z_rip)
-
+        outputCache.add_surface('Generated ripple surface', X, Y, Z_rip)
+    
     # COMBINE THERMOCAPILLARY RIPPLES TO CAPILLARY FILTERED SURFACE AND PLOT
     Z_pred = Z_redc + Z_rip
 

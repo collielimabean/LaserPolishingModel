@@ -15,7 +15,7 @@ class SpotParameters:
         self.gridset = gridset
 
     def create_spot(self):
-        num_pts = int((2 * self.r_melt) / self.gridset)
+        num_pts = int((2 * self.r_melt) / self.gridset) + 1
         r_peak_sq = np.power(self.r_peak, 2)
         outer_region_offset = self.z_peak - self.ifs_outer * self.r_peak
 
@@ -108,14 +108,18 @@ def ripples(XI, YI, afs_inner, d, spot, step):
   
     # note the 2x factor is a "fudge" factor - unit cells seem better
     # this way
-    x_spots = 2 * np.ceil(1 / (1 - x_overlap_pct))
-    y_spots = 2 * np.ceil(1 / (1 - y_overlap_pct))
+    x_spots = int(2 * np.ceil(1 / (1 - x_overlap_pct)))
+    y_spots = int(2 * np.ceil(1 / (1 - y_overlap_pct)))
 
-    grid_x_limits = np.arange(-r_melt, gridset, (x_spots - 1) * x_step + r_melt)
-    grid_y_limits = np.arange(-r_melt, gridset, (y_spots - 1) * y_step + r_melt)
+    lower_left_coord = (-r_melt, -r_melt)
+    upper_right_coord = ((x_spots - 1) * x_step + r_melt, (y_spots - 1) * y_step + r_melt)
+    grid_num_x = int(np.ceil(upper_right_coord[0] - lower_left_coord[0]) / gridset) + 1
+    grid_num_y = int(np.ceil(upper_right_coord[1] - lower_left_coord[1]) / gridset) + 1
+    grid_x_limits = np.linspace(lower_left_coord[0], upper_right_coord[0], grid_num_x)
+    grid_y_limits = np.linspace(lower_left_coord[0], upper_right_coord[0], grid_num_y)
     
     [overlay_x, overlay_y] = np.meshgrid(grid_x_limits, grid_y_limits)
-    overlay_grid = np.zeros(np.size(overlay_x))
+    overlay_grid = np.zeros(np.shape(overlay_x))
 
     # go in a snake pattern in the y direction
     # i.e. (1, 1) -> (1, n) -> (2, n) -> (2, 1) -> (3, 1) ...
@@ -137,24 +141,27 @@ def ripples(XI, YI, afs_inner, d, spot, step):
     # Unit cell to lattice
     # grab 'unit' from overlayed_grid
 
-    uc_x_lim = [r_melt, (x_spots - 1) * x_step - r_melt]
-    uc_y_lim = [r_melt, (y_spots - 1) * y_step - r_melt]
-    uc_selector = (overlay_x > uc_x_lim[0]) and (overlay_x <= uc_x_lim[1]) and \
-        (overlay_y > uc_y_lim[0]) and (overlay_y <= uc_y_lim[1])
-    uc = overlay_grid(uc_selector)
+    uc_x_lim = np.array([r_melt, (x_spots - 1) * x_step - r_melt])
+    uc_y_lim = np.array([r_melt, (y_spots - 1) * y_step - r_melt])
+    uc_selector = np.logical_and(
+        np.logical_and(overlay_x > uc_x_lim[0], overlay_x <= uc_x_lim[1]),
+        np.logical_and(overlay_y > uc_y_lim[0], overlay_y <= uc_y_lim[1]))
+    uc = overlay_grid[uc_selector]
 
     # pull the unit cell out and normalize it
     unit_cell_x = uc_x_lim / gridset
     unit_cell_y = uc_y_lim / gridset
-    unit_cell = np.reshape(uc, unit_cell_x(2) - unit_cell_x(1), unit_cell_y(2) - unit_cell_y(1))
-    unit_cell = unit_cell - np.mean(np.mean(unit_cell))
+    unit_cell = np.reshape(uc, [int(unit_cell_x[1] - unit_cell_x[0]), int(unit_cell_y[1] - unit_cell_y[0])])
+    unit_cell = unit_cell - np.mean(unit_cell)
     
     # now take the unit cell and replicate to a size close to XI * YI
     # once again, 2x factor is for fudge factor to allow interp2 to do a
     # better job
-    lattice = np.matlib.repmat(unit_cell, 2 * np.ceil(np.size(XI, 1) / np.size(unit_cell, 1)), 2 * np.ceil(np.size(YI, 0) / np.size(unit_cell, 0)))
-    lattice_x = np.arange(0, gridset * (np.size(lattice, 1) - 1), gridset)
-    lattice_y = np.arange(0, gridset * (np.size(lattice, 0) - 1), gridset)
+    x_repl = int(2 * np.ceil(np.size(XI) / np.shape(unit_cell)[1]))
+    y_repl = int(2 * np.ceil(np.size(YI) / np.shape(unit_cell)[0]))
+    lattice = np.matlib.repmat(unit_cell, x_repl, y_repl)
+    lattice_x = np.linspace(0, gridset * (np.size(lattice, 1) - 1), np.size(lattice, 1))
+    lattice_y = np.linspace(0, gridset * (np.size(lattice, 0) - 1), np.size(lattice, 0))
     lattice_y = lattice_y.T
     
     # Convert to Experimental Mesh
