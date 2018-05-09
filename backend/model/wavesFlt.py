@@ -5,14 +5,14 @@ def wavesFlt(X, Y, height, lambdaC=0.08):
     fc = 1 / lambdaC # The Roughness Long-wavelength Cutoff frequency
 
     # Computing the spatial frequency spectrum
-    FsX = 1/(X(2) - X(1)) # The sampling frequency in the X direction
-    FsY = 1/(Y(2) - Y(1)) # The sampling frequency in the Y direction
+    FsX = 1 / (X[1] - X[0]) # The sampling frequency in the X direction
+    FsY = 1 / (Y[1] - Y[0]) # The sampling frequency in the Y direction
     freqX, freqY, FFT, _ = centeredfft2(height, FsX, FsY)
 
     # Creating the filter
     alpha = np.sqrt(np.log(2) / np.pi)
 
-    filt_wavi = np.zeros(len(freqX))
+    filt_wavi = np.zeros((len(freqY), len(freqX)))
     for i in range(len(freqX)):
         filt_wavi[:, i] = 1 - np.exp(np.pi * (-(alpha*freqX[i]/fc) ** 2 - (alpha * freqY / fc) ** 2))
 
