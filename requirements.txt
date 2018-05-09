@@ -1,0 +1,8 @@
+nose
+sphinx
+Flask
+numpy
+scipy
+matplotlib
+units
+plotly
