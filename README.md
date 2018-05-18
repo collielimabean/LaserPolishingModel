@@ -6,7 +6,7 @@ Laser Polishing Model Simulator
 2. Run `pip install -r requirements.txt` in the top level.
 3. Run `npm install` in the frontend folder.
 4. Run `npm run build` in the frontend folder.
-5. Run `python backend/app.py`
+5. Run `python app.py` in the backend folder.
 6. Navigate to http://localhost:5000/ for the application.
 
 ## Running a command-line version
