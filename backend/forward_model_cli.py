@@ -1,7 +1,14 @@
+"""
+Main entry point when running on the command line.
+
+Invoke this script by `python forward_model_cli.py`.
+"""
+
 from model import *
 import os
 import numpy as np
 
+# relative to the current script location
 SURFACE_FILE_PATH = '../data/1-15-15_MilledH_1_20x.asc'
 
 zygo = ZygoAsciiFile(os.path.abspath(SURFACE_FILE_PATH))

@@ -4,6 +4,11 @@ import ParameterTable from '../parameter-table/ParameterTable';
 import Dropzone from 'react-dropzone';
 import './InputWindow.css';
 
+/**
+ * The InputWindow provides the user to upload the Zygo file,
+ * edit the material/laser parameters.
+ *  @class
+ */
 export default class InputWindow extends Component {
   state = {
     fileName: undefined

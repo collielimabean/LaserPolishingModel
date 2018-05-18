@@ -10,5 +10,4 @@ Laser Polishing Model Simulator
 6. Navigate to http://localhost:5000/ for the application.
 
 ## Running a command-line version
-1. Navigate to the backend/cli folder.
-2. Run any python script in there.
+1. Run `python forward_model_cli.py`

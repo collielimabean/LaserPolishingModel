@@ -1,5 +1,6 @@
 
 class Laser:
+    """Plain old python object to hold laser properties."""
     def __init__(self, beam_radius, pulse_duration, avg_power, 
         duty_cycle, pulse_frequency):
         self.beam_radius = beam_radius

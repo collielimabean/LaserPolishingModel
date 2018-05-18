@@ -1,6 +1,10 @@
 import numpy as np
 
 def centeredfft2(Z, FsX, FsY):
+    """
+    Computes a 2D fft centered at 0. Or in other words, compute
+    the 2D fft, and then fftshift it.
+    """
     M = np.size(Z, 1)
     N = np.size(Z, 0)
 

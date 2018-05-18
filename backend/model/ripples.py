@@ -4,8 +4,12 @@ from scipy import optimize, interpolate
 from .zygo import ZygoAsciiFile
 
 class SpotParameters:
+    """ 
+    The SpotParameters class generates a single laser spot from the following parameters.
+    """
     def __init__(self, ifs_inner, ifs_outer, r_melt, 
         r_peak, z_valley, z_peak, gridset):
+        """ Constructs a new SpotParameters object with the specified parameters."""
         self.ifs_inner = ifs_inner
         self.ifs_outer = ifs_outer
         self.r_melt = r_melt
@@ -15,6 +19,7 @@ class SpotParameters:
         self.gridset = gridset
 
     def create_spot(self):
+        """Generates the conical spot shape, and returns a tuple of the resultant surface. """
         num_pts = int((2 * self.r_melt) / self.gridset) + 1
         r_peak_sq = np.power(self.r_peak, 2)
         outer_region_offset = self.z_peak - self.ifs_outer * self.r_peak
@@ -32,7 +37,14 @@ class SpotParameters:
         return [x, y, spot]
 
 def compute_zero_volume_parameters(ifs_inner, ifs_outer, r_melt, r_peak, z_valley, z_peak):
+    """
+    Computes the necessary parameters to have a mass-conserved spot. 3 of 6 parametes supplied
+    must be falsey (empty list, false, empty strings, etc), otherwise we cannot run the 
+    computation as we would be overconstrained.
+    """
+
     def zero_vol_constraints(x):
+        """ Defines the 6 constraints necessary to have a mass-conserving spot."""
         # [ifs_inner, ifs_outer, r_melt, r_peak, z_valley, z_peak]
         constraints = [
             x[1] - ((x[0] * (x[3] ** 3)) / (x[3] ** 3 - x[2] ** 3)),
@@ -60,13 +72,16 @@ def compute_zero_volume_parameters(ifs_inner, ifs_outer, r_melt, r_peak, z_valle
 
         return constraints
 
+    # solve for the constraints, and return the solution
     sol = optimize.root(zero_vol_constraints, [ifs_inner, ifs_outer, r_melt, r_peak, z_valley, z_peak], method='lm')
     return sol.x
 
 def area_overlap(radius, step):
+    """ Determines the ratio of overlap between circles with the same radii with the specified center offset."""
     return 2 * (radius ** 2) * np.arccos(step / (2 * radius)) - (step / 2) * np.sqrt(4 * (radius ** 2) - (step ** 2))
 
 def ripples(XI, YI, afs_inner, d, spot, step):
+    """ Generates the ripple surface by overlaying multiple spots."""
     r_spot = spot / 2
     ifs_outer = 0
     ifs_inner = afs_inner
@@ -76,6 +91,7 @@ def ripples(XI, YI, afs_inner, d, spot, step):
     z_peak = 0
     gridset = 0.2
 
+    # first, compute the mass-conserving spot.
     zero_vol_params = compute_zero_volume_parameters(ifs_inner, ifs_outer, r_melt, r_peak, z_valley, z_peak)
     sp = SpotParameters(*zero_vol_params, gridset)
     x, y, z = sp.create_spot()
@@ -111,6 +127,7 @@ def ripples(XI, YI, afs_inner, d, spot, step):
     x_spots = int(2 * np.ceil(1 / (1 - x_overlap_pct)))
     y_spots = int(2 * np.ceil(1 / (1 - y_overlap_pct)))
 
+    # compute the grid x/y bounds
     lower_left_coord = (-r_melt, -r_melt)
     upper_right_coord = ((x_spots - 1) * x_step + r_melt, (y_spots - 1) * y_step + r_melt)
     grid_num_x = int(np.ceil(upper_right_coord[0] - lower_left_coord[0]) / gridset) + 1
@@ -140,7 +157,6 @@ def ripples(XI, YI, afs_inner, d, spot, step):
 
     # Unit cell to lattice
     # grab 'unit' from overlayed_grid
-
     uc_x_lim = np.array([r_melt, (x_spots - 1) * x_step - r_melt])
     uc_y_lim = np.array([r_melt, (y_spots - 1) * y_step - r_melt])
     uc_selector = np.logical_and(
@@ -164,7 +180,7 @@ def ripples(XI, YI, afs_inner, d, spot, step):
     lattice_y = np.linspace(0, gridset * (np.size(lattice, 0) - 1), np.size(lattice, 0))
     lattice_y = lattice_y.T
     
-    # Convert to Experimental Mesh
+    # Convert to Experimental Mesh through interpolation
     lattice_x = lattice_x / 1000
     lattice_y = lattice_y / 1000
     

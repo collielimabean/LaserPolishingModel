@@ -1,5 +1,6 @@
 
 class Material:
+    """ Plain old python object to store material data."""
     def __init__(self, stc, mu, k, rho_c, T_m, T_b, absp, rho):
         self.stc = stc
         self.mu = mu

@@ -1,3 +1,4 @@
+""" __init__.py is responsible for allowing correct imports."""
 # standalone modules
 from .centeredfft2 import *
 from .forward_model_config import *

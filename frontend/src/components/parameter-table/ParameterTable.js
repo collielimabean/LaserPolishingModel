@@ -1,6 +1,10 @@
 import React from 'react';
 import ReactTable from 'react-table'
 
+/**
+ * An editable table to handle parameters.
+ * @class
+ */
 export default class ParameterTable extends React.Component {
   COLUMNS = [
     { Header: 'Name', accessor: 'name' },
@@ -35,6 +39,7 @@ export default class ParameterTable extends React.Component {
   componentDidMount() {
   }
 
+  /** @override */
   render() {
     return (
       <ReactTable

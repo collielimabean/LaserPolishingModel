@@ -1,3 +1,11 @@
+"""
+output_cache.py defines the OutputCache class, which 
+is responsible for holding general outputs (value or graph data)
+in an agnostic manner. In other words, it will use Matplotlib PyPlot
+if you are not using the web interface, but can create a JSON payload
+if you are using the web interface.
+"""
+
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 from matplotlib import cm
@@ -5,16 +13,25 @@ import numpy as np
 import json
 
 class OutputCache:
+    """
+    Caches any output (e.g. a = 5) or graphs for future display or JSON bundling.
+    As far as graphs go, only scatter and surface plots are supported. Furthermore, a 
+    limited number of axis/title options are supported.
+    """
+
     def __init__(self):
+        """ Initializes an empty OutputCache object."""
         self.output_dict = {}
         self.output_figures = {}
 
     def add_output(self, name, value, unit):
+        """ Adds an output with the specified name, value, and unit to the cache."""
         self.output_dict[name] = {'name': name, 'value': value, 'units': unit}
 
     def add_scatter(self, name, x, y, mode='lines+points', color='red', **kwargs):
         """ 
         See https://plot.ly/python/reference/#scatter for additional valid settings.
+        Assumes incoming x, y data are numpy arrays.
         """
         self.output_figures[name] = {'name': name, 'type': 'scatter', 'x': x, 'y': y, 'mode': mode, 'marker':{'color': color},**kwargs}
 
@@ -22,10 +39,15 @@ class OutputCache:
         """
         See https://plot.ly/python/reference/#surface for additional valid settings.
         If you need an option there, just add another key-value pair.
+        Assumes incoming x, y, z data are numpy arrays.
         """
         self.output_figures[name] = {'name': name, 'type': 'surface', 'x': x, 'y': y, 'z': z, **kwargs}
 
     def dump_to_console(self):
+        """
+        Dumps the cached outputs and graphs to the console. For regular values (e.g. a = 5),
+        this is printed directly to console. Graphs are plotted via PyPlot and then displayed.
+        """
         for name in self.output_dict:
             output = self.output_dict[name]
             print("{}: {} {}".format(name, output['value'], output['units']))
@@ -67,6 +89,11 @@ class OutputCache:
         plt.show()
 
     def to_dict(self):
+        """
+        Converts the cached data to a python dictionary for Flask to convert to JSON.
+        Assumes incoming data are numpy arrays.
+        """
+
         for fig in self.output_figures.values():
             if fig['type'] == 'scatter':
                 fig['x'] = fig['x'].tolist()

@@ -3,8 +3,12 @@ import InputWindow from '../input-window/InputWindow';
 import OutputWindow from '../output-window/OutputWindow';
 import './App.css';
 
-
+/** 
+ * The main window, layout, and controller for the frontend. 
+ * @class
+ */
 export default class App extends Component {
+  /** Default material values and units. */
   material_values = [
     {name: "stc", value: 0, units: "-", comments: ""},
     {name: "mu", value: 0, units: "m^2/s", comments: ""},
@@ -16,6 +20,7 @@ export default class App extends Component {
     {name: "absp", value: 0, units: "-", comments: ""},
   ];
 
+  /** Default laser parameters values and units. */
   laser_values = [
     {name: "Beam Radius", value: 0, units: "μm", comments: ""},
     {name: "Pulse Duration", value: 0, units: "s", comments: ""},
@@ -31,6 +36,10 @@ export default class App extends Component {
     computationRunning: false
   }
 
+  /**
+   * This method is called when the start button is clicked. 
+   * This method is responsible for issuing the HTTP POST to the backend. 
+   */
   startForwardModel() {
     let fetchOptions = {
       method: 'POST',
@@ -81,6 +90,7 @@ export default class App extends Component {
     this.setState({computationRunning: true});
   }
   
+  /** @override */
   render() {
     return (
       <div>

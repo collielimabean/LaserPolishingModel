@@ -7,6 +7,11 @@ import Plot from 'react-plotly.js'
 //import createPlotlyComponent from 'react-plotly.js/factory';
 //const Plot = createPlotlyComponent(Plotly);
 
+/**
+ * The OutputWindow displays the output values in a table
+ * and all graphs received from the python backend. 
+ * @class
+ */
 export default class OutputWindow extends Component {
   OUTPUT_COLUMNS = [
     { Header: 'Output Name', accessor: 'name' },
@@ -14,6 +19,7 @@ export default class OutputWindow extends Component {
     { Header: 'Units', accessor: 'units' },
   ];
 
+  /** @override */
   render() {
     return (
       <div>

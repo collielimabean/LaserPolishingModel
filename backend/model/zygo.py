@@ -2,6 +2,14 @@ import re
 import numpy as np
 
 class ZygoAsciiFile:
+    """
+    This class parses the Zygo file format, which has a header section
+    followed by the intensity and phase data.
+
+    The header is parsed by a monster regex. If this doesn't work, good luck.
+    Luckily, testing seems to show that this method is reliable.
+    """
+
     HEADER_REGEX = (r"Zygo ASCII Data File - Format \d+\n"
 	r"(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+\"(.*)\"\n"
 	r"(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\n"
@@ -20,6 +28,12 @@ class ZygoAsciiFile:
 
     HEADER_DELIMITER = '#'
 
+    """ 
+    Each paranthesis in the regex represents a certain field. The following
+    list contains tuples or strings of the fields from the beginning of the header.
+    The tuple specifies that the data should be parsed as a certain type (integer, float, etc.)
+    If no type is specified, it will be parsed as a string.
+    """
     HEADER_FIELDS = [
         ('software_type', int),
         ('major_version', int),
@@ -81,9 +95,11 @@ class ZygoAsciiFile:
     ]
 
     def __init__(self, filename):
+        """ Constructs a new Zygo object, and parses the given filename."""
         self.load_file(filename)
 
     def load_file(self, filename):
+        """ Loads the specified file. """
         with open(filename, 'r') as f:
             raw_text = f.read()
 
@@ -114,14 +130,10 @@ class ZygoAsciiFile:
             self.phase_data = self._parse_int_array(data[2], self.phase_height, self.phase_width, 2147483640, phase_data_scale_factor)
 
     def _parse_int_array(self, raw_array, height, width, invalid_threshold, scale_factor = 1):
+        """ Helper method to parse the phase or intensity data. """
         parsed_array = np.fromstring(raw_array, dtype=float, sep=' ')
         parsed_array[parsed_array > invalid_threshold] = -1
         return np.reshape(parsed_array, [height, width]) * scale_factor
 
     def __str__(self):
         return str(self.__dict__)
-
-if __name__ == "__main__":
-    a = ZygoAsciiFile("C:\\Users\\William\\Documents\\Sensitivity Edit - Brodan\\1-15-15_MilledH_1_20x.asc")
-    print(str(a))
-    print(np.shape(a.intensity_data))
