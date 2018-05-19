@@ -94,8 +94,8 @@ def run_forward_model(zygo, material, laser, outputCache, config=ForwardModelCon
     # capillary prediction starts here
     # create capillary low pass filter
     if config.show_debugging_figures:
-        outputCache.add_scatter('Cross-Section Frequency spectrum in X-direction of Sample', freqX, np.abs(fft_x[0, :]))
-        outputCache.add_scatter('Cross-Section Frequency spectrum in Y-direction of Sample', freqY, np.abs(fft_y[:, 0]))
+        outputCache.add_scatter('Cross-Section Frequency spectrum in X-direction of Sample', freqX, np.abs(np.real(fft_x[0, :])))
+        outputCache.add_scatter('Cross-Section Frequency spectrum in Y-direction of Sample', freqY, np.abs(np.real(fft_y[:, 0])))
 
     cap_filter = np.zeros(np.shape(fft)).T
     for i in range(len(freqY)):
@@ -103,7 +103,7 @@ def run_forward_model(zygo, material, laser, outputCache, config=ForwardModelCon
     cap_filter = cap_filter.T
 
     if config.show_debugging_figures:
-        outputCache.add_surface('Surface plot of filter for X and Y Frequencies', freqX, freqY, cap_filter)
+        outputCache.add_surface('Surface plot of filter for X and Y Frequencies', freqX, freqY, np.real(cap_filter))
     
     # APPLYING CAPILLARY LOW-PASS FILTER ON UNPOLISHED SURFACE
     M = np.size(surface, 0)
@@ -115,7 +115,7 @@ def run_forward_model(zygo, material, laser, outputCache, config=ForwardModelCon
 
     # plot filter
     if config.show_general_figures or config.show_debugging_figures:
-        outputCache.add_surface('Capillary Filtered Plot', X, Y, Z_redc)
+        outputCache.add_surface('Capillary Filtered Plot', X, Y, np.real(Z_redc))
 
     ### thermocapillary prediction
     Z_rip = ripples(X, Y, afs, 100, 5, 10)
@@ -157,20 +157,20 @@ def run_forward_model(zygo, material, laser, outputCache, config=ForwardModelCon
     Sq_pred = np.sqrt(np.sum((Z_pred - np.mean(Z_pred)) ** 2)) / np.size(Z_pred) * 1000
 
     Sa_wavifiltered_unpo = np.sum(Z_wavifiltered_unpo - np.mean(Z_wavifiltered_unpo)) / np.size(Z_wavifiltered_unpo) * 1000
-    Sq_wavifiltered_unpo = np.sqrt((Z_wavifiltered_unpo - np.mean(Z_wavifiltered_unpo)) ** 2) / np.size(Z_wavifiltered_unpo) * 1000
-
+    Sq_wavifiltered_unpo = np.sqrt(np.sum((Z_wavifiltered_unpo - np.mean(Z_wavifiltered_unpo)) ** 2) / np.size(Z_wavifiltered_unpo)) * 1000
+    
     Sa_wavifiltered_pred = np.sum(Z_wavifiltered_pred - np.mean(Z_wavifiltered_pred)) / np.size(Z_wavifiltered_pred) * 1000
-    Sq_wavifiltered_pred = np.sqrt((Z_wavifiltered_pred - np.mean(Z_wavifiltered_pred)) ** 2) / np.size(Z_wavifiltered_pred) * 1000
+    Sq_wavifiltered_pred = np.sqrt(np.sum((Z_wavifiltered_pred - np.mean(Z_wavifiltered_pred)) ** 2) / np.size(Z_wavifiltered_pred)) * 1000
 
     outputCache.add_output('Sa_unpo', Sa_unpo, '-')
     outputCache.add_output('Sa_wavifiltered_unpo', Sa_wavifiltered_unpo, '-')
     outputCache.add_output('Sq_unpo', Sq_unpo, '-')
     outputCache.add_output('Sq_wavifiltered_unpo', Sq_wavifiltered_unpo, '-')
 
-    outputCache.add_output('Sa_pred', Sa_unpo, '-')
-    outputCache.add_output('Sa_wavifiltered_pred', Sa_wavifiltered_unpo, '-')
-    outputCache.add_output('Sq_pred', Sq_unpo, '-')
-    outputCache.add_output('Sq_wavifiltered_pred', Sq_wavifiltered_unpo, '-')
+    outputCache.add_output('Sa_pred', Sa_pred, '-')
+    outputCache.add_output('Sa_wavifiltered_pred', Sa_wavifiltered_pred, '-')
+    outputCache.add_output('Sq_pred', Sq_pred, '-')
+    outputCache.add_output('Sq_wavifiltered_pred', Sq_wavifiltered_pred, '-')
 
     # FREQUENCY PLOT COMPARISONS
     if config.show_general_figures or config.show_debugging_figures:

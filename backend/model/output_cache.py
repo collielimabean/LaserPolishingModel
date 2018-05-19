@@ -26,7 +26,7 @@ class OutputCache:
 
     def add_output(self, name, value, unit):
         """ Adds an output with the specified name, value, and unit to the cache."""
-        self.output_dict[name] = {'name': name, 'value': value, 'units': unit}
+        self.output_dict[name] = {'name': name, 'value': str(value), 'units': unit}
 
     def add_scatter(self, name, x, y, mode='lines+points', color='red', **kwargs):
         """ 

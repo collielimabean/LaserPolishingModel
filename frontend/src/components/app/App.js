@@ -10,23 +10,23 @@ import './App.css';
 export default class App extends Component {
   /** Default material values and units. */
   material_values = [
-    {name: "stc", value: 0, units: "-", comments: ""},
-    {name: "mu", value: 0, units: "m^2/s", comments: ""},
-    {name: "k", value: 0, units: "W/m-K", comments: ""},
-    {name: "rho_c", value: 0, units: "J/m^3-K", comments: ""},
-    {name: "rho", value: 0, units: "kg/m^3", comments: ""},
-    {name: "T_m", value: 0, units: "K", comments: ""},
-    {name: "T_b", value: 0, units: "K", comments: ""},
-    {name: "absp", value: 0, units: "-", comments: ""},
+    {name: "stc", value: -0.48e-3, units: "-", comments: ""},
+    {name: "mu", value: 5.5e-3, units: "m^2/s", comments: ""},
+    {name: "k", value: 28.5, units: "W/m-K", comments: ""},
+    {name: "rho_c", value: 6.05e6, units: "J/m^3-K", comments: ""},
+    {name: "rho", value: 7783, units: "kg/m^3", comments: ""},
+    {name: "T_m", value: 1727, units: "K", comments: ""},
+    {name: "T_b", value: 3134, units: "K", comments: ""},
+    {name: "absp", value: 0.38, units: "-", comments: ""},
   ];
 
   /** Default laser parameters values and units. */
   laser_values = [
-    {name: "Beam Radius", value: 0, units: "μm", comments: ""},
-    {name: "Pulse Duration", value: 0, units: "s", comments: ""},
-    {name: "Average Power", value: 0, units: "W", comments: ""},
-    {name: "Duty Cycle", value: 0, units: "%", comments: ""},
-    {name: "Pulse Frequency", value: 0, units: "Hz", comments: ""},
+    {name: "Beam Radius", value: 15e-6, units: "μm", comments: ""},
+    {name: "Pulse Duration", value: 3e-6, units: "s", comments: ""},
+    {name: "Average Power", value: 3, units: "W", comments: ""},
+    {name: "Duty Cycle", value: 0.25, units: "%", comments: ""},
+    {name: "Pulse Frequency", value: 20e3, units: "Hz", comments: ""},
   ];
 
   state = {

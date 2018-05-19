@@ -7,6 +7,15 @@ from functools import reduce
 from model import *
 import string
 
+FRONTEND_PARAM_MAP = {
+    'Beam Radius': 'beam_radius',
+    'Pulse Duration': 'pulse_duration',
+    'Average Power': 'avg_power',
+    'Duty Cycle': 'duty_cycle',
+    'Pulse Frequency': 'pulse_frequency'
+}
+
+
 # instruct Flask, the python server, to serve the frontend javascript code
 # at the specified relative path to this file.
 app = Flask(__name__, static_folder='../frontend/build/static', template_folder='../frontend/build')
@@ -50,8 +59,8 @@ def server_run_forward_model():
         f.write(data['zygo'].replace('\r\n', '\n'))
 
     # convert the frontend material and laser parameter data into the backend format
-    mat_dict = reduce((lambda x, y: {**x, y['name']: y['value']}), data['material'], {})
-    laser_dict = reduce((lambda x, y: {**x, y['name']: y['value']}), data['laser'])
+    mat_dict = reduce((lambda x, y: {**x, y['name']: float(y['value'])}), data['material'], {})
+    laser_dict = reduce((lambda x, y: {**x, FRONTEND_PARAM_MAP[y['name']]: float(y['value'])}), data['laser'], {})
 
     # initialize the forward model configuration and settings
     zygo = ZygoAsciiFile('_zygo_ascii_file.txt')
@@ -62,7 +71,7 @@ def server_run_forward_model():
                 show_debugging_figures=True, show_console_output=False)
 
     # run the model, and return the output
-    run_forward_config_model(zygo, material, laser, config, outputCache)    
+    run_forward_model(zygo, material, laser, outputCache, config)    
     return jsonify(outputCache.to_dict())
 
 if __name__ == '__main__':

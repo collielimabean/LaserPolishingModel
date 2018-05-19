@@ -26,7 +26,12 @@ export default class ParameterTable extends React.Component {
         suppressContentEditableWarning
         onBlur={e => {
           const data = [...this.state.data];
-          data[cellInfo.index][cellInfo.column.id] = e.target.innerHTML;
+          let leafNode = e.target;
+          while (leafNode.children.length > 0) {
+            leafNode = leafNode.childNodes[0];
+          }
+
+          data[cellInfo.index][cellInfo.column.id] = leafNode.innerHTML;
           this.setState({ data });
         }}
         dangerouslySetInnerHTML={{
